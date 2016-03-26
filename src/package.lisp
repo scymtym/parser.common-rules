@@ -18,6 +18,11 @@
 
    #:<same-line>)
 
+  ;; Whitespace rules
+  (:export
+   #:whitespace/not-newline #:whitespace/not-newline?
+   #:whitespace             #:whitespace?             #:whitespace+ #:whitespace*)
+
   #+sbcl (:lock t)
 
   (:documentation

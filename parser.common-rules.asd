@@ -18,7 +18,8 @@
                  :serial     t
                  :components ((:file       "package")
 
-                              (:file       "rules-anchors"))))
+                              (:file       "rules-anchors")
+                              (:file       "rules-whitespace"))))
 
   :in-order-to ((test-op (test-op :parser.common-rules-test))))
 

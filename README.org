@@ -61,6 +61,18 @@
    : 7
    : T
 
+** Whitespace
+   The whitespace-related rules should be pretty self-explanatory:
+
+   #+BEGIN_SRC lisp :results value scalar :exports both :session "tutorial"
+     (esrap:parse 'parser.common-rules:whitespace+ "  ")
+   #+END_SRC
+
+   #+RESULTS:
+   : NIL
+   : NIL
+   : T
+
 * TODO Dictionary
   #+BEGIN_SRC lisp :results silent :exports results :session "doc"
     (ql:quickload '(:alexandria :split-sequence :parser.common-rules))
@@ -118,6 +130,47 @@
      Consumes all characters until <end-of-line> and produces the resulting
      string.
    #+END_EXAMPLE
+
+** Whitespace
+   #+BEGIN_EXAMPLE
+     whitespace/not-newline
+
+     Consumes a single #\Space or #\Tab, produces nil.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     whitespace/not-newline?
+
+     Consumes nothing or a single #\Space or #\Tab, produces nil.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     whitespace
+
+     Consumes a single #\Tab, #\Space, #\Newline or #\Page, produces nil.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     whitespace?
+
+     Consumes nothing or a single #\Tab, #\Space, #\Newline or #\Page,
+     produces nil.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     whitespace+
+
+     Consumes one or more #\Tab, #\Space, #\Newline or #\Page characters,
+     produces nil.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     whitespace*
+
+     Consumes zero or more #\Tab, #\Space, #\Newline or #\Page characters,
+     produces nil.
+   #+END_EXAMPLE
+
 * Settings                                                         :noexport:
 
 #+OPTIONS: H:2 num:nil toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
