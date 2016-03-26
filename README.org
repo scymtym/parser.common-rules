@@ -73,6 +73,50 @@
    : NIL
    : T
 
+** Comments
+   There are several rules for parsing different styles of comments
+   commonly used in programming languages. For example, the following
+   rule parses src_c[:exports code]{/* … */} comments:
+
+   #+BEGIN_SRC lisp :results value scalar :exports both :session "tutorial"
+     (esrap:parse
+      'parser.common-rules:c-style-comment/delimited
+      "/*
+        * Foo bar
+        */")
+   #+END_SRC
+
+   #+RESULTS:
+   : "
+   :    * Foo bar
+   :    "
+   : NIL
+   : T
+
+   The above production is faithful to the input text with respect to
+   whitespace, but that is not always desired. In such cases, the
+   following comes in handy:
+
+   #+BEGIN_SRC lisp :results value scalar :exports both :session "tutorial"
+     (esrap:parse
+      'parser.common-rules:c-style-comment/delimited/trimmed
+      "/*
+        * Foo bar
+        ** fez baz
+        * * whoop
+        */")
+   #+END_SRC
+
+   #+RESULTS:
+   : "Foo bar
+   :  fez baz
+   : * whoop"
+   : NIL
+   : T
+
+   Note how prefixes of the same length are trimmed from all lines and
+   the =* whoop= in the third comment line remains intact.
+
 * TODO Dictionary
   #+BEGIN_SRC lisp :results silent :exports results :session "doc"
     (ql:quickload '(:alexandria :split-sequence :parser.common-rules))
@@ -169,6 +213,40 @@
 
      Consumes zero or more #\Tab, #\Space, #\Newline or #\Page characters,
      produces nil.
+   #+END_EXAMPLE
+
+** Comments
+   #+BEGIN_EXAMPLE
+     c-style-comment/rest-of-line[/trimmed]
+
+     Consumes a comment of the form // … <end-of-line>, produces a string
+     from the enclosed characters. The /trimmed variant removes leading
+     #\/ characters. The plain variant uses the character unmodified.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     c-style-comment/delimited[/trimmed]
+
+     Consumes a comment of the form /* … */, produces a string from the
+     enclosed characters. The /trimmed variant removes a common prefix
+     consisting of #\Space and #\* characters. The plain variant uses the
+     enclosed characters unmodified.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     shell-style-comment[/trimmed]
+
+     Consumes a comment of the form # … <end-of-line>, produces a string
+     from the enclosed characters. The /trimmed variant removes leading
+     #\# characters. The plain variant uses the character unmodified.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     lisp-style-comment[/trimmed]
+
+     Consumes a comment of the form ; … <end-of-line>, produces a string
+     from the enclosed characters. The /trimmed variant removes leading
+     #\; characters. The plain variant uses the character unmodified.
    #+END_EXAMPLE
 
 * Settings                                                         :noexport:

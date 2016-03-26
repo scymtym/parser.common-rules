@@ -8,6 +8,7 @@
   (:use
    #:cl
    #:alexandria
+   #:let-plus
 
    #:esrap)
 
@@ -22,6 +23,15 @@
   (:export
    #:whitespace/not-newline #:whitespace/not-newline?
    #:whitespace             #:whitespace?             #:whitespace+ #:whitespace*)
+
+  ;; Comment rules
+  (:export
+   #:c-style-comment/rest-of-line #:c-style-comment/rest-of-line/trimmed
+   #:c-style-comment/delimited    #:c-style-comment/delimited/trimmed
+
+   #:shell-style-comment          #:shell-style-comment/trimmed
+
+   #:lisp-style-comment           #:lisp-style-comment/trimmed)
 
   #+sbcl (:lock t)
 

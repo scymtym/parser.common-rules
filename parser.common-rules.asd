@@ -12,14 +12,17 @@
 
   :version     (:read-file-form "version-string.sexp")
   :depends-on  (:alexandria
-                (:version :esrap "0.14"))
+                :split-sequence ; for rules-comments.lisp
+                (:version :let-plus "0.2")
+                (:version :esrap    "0.14"))
 
   :components  ((:module     "src"
                  :serial     t
                  :components ((:file       "package")
 
                               (:file       "rules-anchors")
-                              (:file       "rules-whitespace"))))
+                              (:file       "rules-whitespace")
+                              (:file       "rules-comments"))))
 
   :in-order-to ((test-op (test-op :parser.common-rules-test))))
 
@@ -39,7 +42,8 @@
                  :serial     t
                  :components ((:file       "package")
 
-                              (:file       "rules-anchors")))))
+                              (:file       "rules-anchors")
+                              (:file       "rules-comments")))))
 
 (defmethod perform ((operation test-op)
                     (component (eql (find-system :parser.common-rules-test))))
