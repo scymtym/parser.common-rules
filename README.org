@@ -154,6 +154,98 @@
       : NIL
       : T
 
+** Tokenization
+   Esrap-based grammars in most cases work without a separate lexical
+   analysis phase. Among other things, this implies that the grammar
+   rules have to handle tokenization. This system provides the
+   src_lisp[:exports code]{defrule/s} macro to automate some of this
+   effort.
+
+   The macro is used in place of
+   src_lisp[:exports code]{esrap:defrule} to define rules which parse
+   token-like things. For example
+
+   #+BEGIN_SRC lisp :results silent :exports both :session "tutorial"
+     (parser.common-rules:defrule/s (identifier
+                                     :skippable-expression  parser.common-rules:whitespace+
+                                     :skippable?-expression parser.common-rules:whitespace*)
+         (and (esrap:character-ranges (#\a #\z) (#\A #\Z))
+              (* (esrap:character-ranges (#\a #\z) (#\A #\Z) (#\0 #\9))))
+       (:text t))
+   #+END_SRC
+
+   Instead of one rule src_lisp[:exports code]{identifier}, this form
+   defines up to three rules
+   + src_lisp[:exports code]{identifier}
+   + src_lisp[:exports code]{identifier/s}
+   + src_lisp[:exports code]{identifier/?s}
+   The second and third rule parse an identifier followed by mandatory
+   and optional "skippable" text (i.e. some form of whitespace in most
+   cases) respectively. These rules can be used in places that require
+   or allow an identifier to be separated by whitespace from the next
+   token. For example:
+
+   #+BEGIN_SRC lisp :results silent :exports both :session "tutorial"
+     (parser.common-rules:defrule/s (equals
+                                     :skippable-expression  parser.common-rules:whitespace+
+                                     :skippable?-expression parser.common-rules:whitespace*)
+         #\=)
+
+     (esrap:defrule declaration
+         (and identifier/?s equals/?s (* (digit-char-p character))))
+   #+END_SRC
+
+   This rules behaves like a parser with lexical analysis phase would:
+
+   #+BEGIN_SRC lisp :results value table:exports both :session "tutorial" :colnames '("input" "production")
+     (mapcar (lambda (input)
+               (list (prin1-to-string input)
+                     (princ-to-string (esrap:parse 'declaration input))))
+             '("a=1" "a =1" "a= 1" "a = 1"))
+   #+END_SRC
+
+   #+RESULTS:
+   | input   | production |
+   |---------+------------|
+   | "a=1"   | (a = (1))  |
+   | "a =1"  | (a = (1))  |
+   | "a= 1"  | (a = (1))  |
+   | "a = 1" | (a = (1))  |
+
+   Note that skippable text before and after the declaration is not
+   handled by this rule but in the respective context in which the
+   src_lisp[:exports code]{declaration} rule is used (This could
+   require defining the src_lisp[:exports code]{declaration} rule
+   using src_lisp[:exports code]{defrule/s} as well).
+
+   The unwieldy specification of skippable expressions
+
+   #+BEGIN_SRC lisp :exports code
+     (parser.common-rules:defrule/s (identifier
+                                     :skippable-expression  parser.common-rules:whitespace+
+                                     :skippable?-expression parser.common-rules:whitespace*)
+         …)
+   #+END_SRC
+
+   can be avoided by defining rules for skippable text in the package
+   of the symbol naming the rule:
+
+   #+BEGIN_SRC lisp :results silent :exports both :session "tutorial"
+     (esrap:defrule skippable
+         parser.common-rules:whitespace+)
+
+     (esrap:defrule skippable?
+         parser.common-rules:whitespace*)
+
+     (parser.common-rules:defrule/s (identifier)
+         (and (esrap:character-ranges (#\a #\z) (#\A #\Z))
+              (* (esrap:character-ranges (#\a #\z) (#\A #\Z) (#\0 #\9))))
+       (:text t))
+   #+END_SRC
+
+   These rules can then be shared by all rules defined with
+   src_lisp[:exports code]{defrule/s}.
+
 * TODO Dictionary
   #+BEGIN_SRC lisp :results silent :exports results :session "doc"
     (ql:quickload '(:alexandria :split-sequence :parser.common-rules))
@@ -353,6 +445,38 @@
        \<octal number below decimal 256>        -> the character with that code
        \x<hexadecimal number below decimal 256> -> the character with that code
    #+END_EXAMPLE
+
+** Tokenization
+   #+BEGIN_SRC lisp :exports results :session "doc"
+     (doc 'parser.common-rules:defrule/s 'function)
+   #+END_SRC
+
+   #+RESULTS:
+   #+begin_example
+   defrule/s NAME-AND-OPTIONS EXPRESSION &BODY OPTIONS
+
+   Like `esrap:defule' but define additional rules named NAME/s and
+   NAME/?s which respectively require/allow EXPRESSION to be followed
+   by skippable input (e.g. whitespace).
+
+   NAME-AND-OPTIONS can be either just a rule name or a list of the
+   form
+
+     (NAME &key
+           SKIPPABLE-EXPRESSION  S?
+           SKIPPABLE?-EXPRESSION ?S?
+           DEFINER)
+
+   where SKIPPABLE-EXPRESSION and SKIPPABLE?-EXPRESSION name the rules
+   used to parse skippable input in the NAME/s and NAME/?s
+   variants. Default to `skippable' and `skippable?' respectively.
+
+   S? and ?S? control which of the NAME/S and NAME/?S rules should be
+   generated. Default is generating both.
+
+   DEFINER is the name of the macro used to define the "main"
+   rule. Defaults to `esrap:defrule'.
+   #+end_example
 
 * Settings                                                         :noexport:
 

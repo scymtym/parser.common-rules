@@ -23,7 +23,9 @@
                               (:file       "rules-anchors")
                               (:file       "rules-whitespace")
                               (:file       "rules-comments")
-                              (:file       "rules-literals"))))
+                              (:file       "rules-literals")
+
+                              (:file       "macros-tokenization"))))
 
   :in-order-to ((test-op (test-op :parser.common-rules-test))))
 
@@ -45,7 +47,9 @@
 
                               (:file       "rules-anchors")
                               (:file       "rules-comments")
-                              (:file       "rules-literals")))))
+                              (:file       "rules-literals")
+
+                              (:file       "macros-tokenization")))))
 
 (defmethod perform ((operation test-op)
                     (component (eql (find-system :parser.common-rules-test))))

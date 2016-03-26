@@ -54,6 +54,10 @@
    #:string-literal/triple-quotes
    #:string-literal/sextuple-quotes)
 
+  ;; Tokenization macros
+  (:export
+   #:defrule/s)
+
   #+sbcl (:lock t)
 
   (:documentation
