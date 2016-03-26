@@ -1,0 +1,59 @@
+#+TITLE:       parser.common-rules README
+#+AUTHOR:      Jan Moringen
+#+EMAIL:       jmoringe@techfak.uni-bielefeld.de
+#+DESCRIPTION:
+#+KEYWORDS:    parser, expression, infix, common rules, esrap
+#+LANGUAGE:    en
+
+* Introduction
+  This system provides rules and rule-constructing macros for the
+  [[https://github.com/scymtym/esrap][esrap parser library]] for common cases in the following categories:
+
+  + Anchors :: Rules that match if the input around the position in
+       question has certain properties.
+
+  + Whitespace :: Rules related to whitespace.
+
+  + Comments :: Rules for parsing different kinds of comments commonly
+       used in programming languages.
+
+  + Literals :: Rules for parsing commonly used literals such as
+       booleans, numbers and strings.
+
+  + Tokenization :: Macros for handling tokenization (which is usually
+       not done in a separate lexing step in esrap-based parsers).
+
+  + Infix Operators :: Macros for defining families of unary and
+       binary operators with given precedence relations and
+       associativity.
+
+* TODO Tutorial
+  #+BEGIN_SRC lisp :results silent :exports results :session "tutorial"
+    (ql:quickload :parser.common-rules)
+  #+END_SRC
+
+* TODO Dictionary
+  #+BEGIN_SRC lisp :results silent :exports results :session "doc"
+    (ql:quickload '(:alexandria :split-sequence :parser.common-rules))
+    (defun doc (symbol kind)
+      (let* ((lambda-list (sb-introspect:function-lambda-list symbol))
+             (string      (or (documentation symbol kind)
+                              (error "~@<~A ~S is not documented.~@:>"
+                                     kind symbol)))
+             (lines       (split-sequence:split-sequence #\Newline string))
+             (strip       (reduce
+                           #'min (rest lines)
+                           :key (lambda (line)
+                                  (or (position #\Space line :test-not #'char=)
+                                      most-positive-fixnum))))
+             (trimmed     (mapcar (lambda (line)
+                                    (subseq line (min strip (length line))))
+                                  (rest lines))))
+        (format nil "~(~A~) ~<~{~A~^ ~}~:@>~2%~{~A~^~%~}"
+                symbol (list lambda-list) (list* (first lines) trimmed))))
+  #+END_SRC
+
+* Settings                                                         :noexport:
+
+#+OPTIONS: H:2 num:nil toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS: TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
