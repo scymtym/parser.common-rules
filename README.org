@@ -117,6 +117,43 @@
    Note how prefixes of the same length are trimmed from all lines and
    the =* whoop= in the third comment line remains intact.
 
+** Literals
+   The system provides rules for parsing Boolean, integer, floating
+   point and string literals. The two most interesting are probably
+
+   1. floating point literals
+
+      #+BEGIN_SRC lisp :results value scalar :exports both :session "tutorial"
+        (esrap:parse 'parser.common-rules:float-literal "0.12e-10")
+      #+END_SRC
+
+      #+RESULTS:
+      : 1.2f-11
+      : NIL
+      : T
+
+   2. string literals
+
+      #+BEGIN_SRC lisp :results value scalar :exports both :session "tutorial"
+        (esrap:parse 'parser.common-rules:string-literal/double-quotes
+                     "\" foo \\\" bar \\x041 \\\\ baz \"")
+      #+END_SRC
+
+      #+RESULTS:
+      : " foo \" bar A \\ baz "
+      : NIL
+      : T
+
+      #+BEGIN_SRC lisp :results value scalar :exports both :session "tutorial"
+        (esrap:parse 'parser.common-rules:string-literal/sextuple-quotes
+                     "\"\"\" foo \\\" bar \\x041 \\\\ baz \"\"\"")
+      #+END_SRC
+
+      #+RESULTS:
+      : " foo \\\" bar \\x041 \\\\ baz "
+      : NIL
+      : T
+
 * TODO Dictionary
   #+BEGIN_SRC lisp :results silent :exports results :session "doc"
     (ql:quickload '(:alexandria :split-sequence :parser.common-rules))
@@ -247,6 +284,74 @@
      Consumes a comment of the form ; … <end-of-line>, produces a string
      from the enclosed characters. The /trimmed variant removes leading
      #\; characters. The plain variant uses the character unmodified.
+   #+END_EXAMPLE
+
+** Literals
+   #+BEGIN_EXAMPLE
+     boolean-literal/{lower-case,capital-case,extended}
+
+     Consumes a Boolean value of the form
+
+          true | false
+       or True | False
+       or true | false | t | f | 1 | 0
+
+     respectively and produces t or nil.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     integer-literal/{octal[/prefix],decimal,hexdecimal[/prefix]}
+
+     Consumes an integer literal and produces its value.
+
+     Variants:
+
+                    /prefix         plain
+       octal        {+,-,}0o[0-7]+  {+,-,}[0-7]+
+       decimal                      {+,-,}[0-9]+
+       hexadecimal  {+,-,}0x[0-f]+  {+,-,}[0-f]+
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     float-literal[/rational]
+
+     Consumes a floating point literal in fixed or scientific notation and
+     produces its value.
+
+     The /rational variant returns the parsed number as a rational value
+     while the plain variant coerces the parsed number into a single-float.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     number-literal
+
+     Consumes an integer or float literal and produces its value. In case
+     of a float literal, a single-float value is returned.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     string-literal-{single,double,triple,sextuple}-quotes
+
+     Consumes a string literal delimited by ', ", ''' or """ respectively.
+     Produces the content of the literal (i.e. excluding the delimiters) as
+     a string.
+
+     For the single-quote and double-quote rules, the #\\ character
+     initiates escape sequences. The following escape sequences are
+     recognized:
+
+       \\                                       -> #\Backslash
+
+       \a                                       -> #\Bel
+       \b                                       -> #\Backspace
+       \f                                       -> #\Page
+       \n                                       -> #\Newline
+       \r                                       -> #\Return
+       \t                                       -> #\Tab
+       \v                                       -> #\Line_Tabulation
+
+       \<octal number below decimal 256>        -> the character with that code
+       \x<hexadecimal number below decimal 256> -> the character with that code
    #+END_EXAMPLE
 
 * Settings                                                         :noexport:

@@ -33,6 +33,27 @@
 
    #:lisp-style-comment           #:lisp-style-comment/trimmed)
 
+  ;; Literal rules
+  (:export
+   #:boolean-literal/lower-case
+   #:boolean-literal/capital-case
+   #:boolean-literal/extended
+
+   #:integer-literal/octal       #:integer-literal/octal/prefix
+   #:integer-literal/decimal
+   #:integer-literal/hexadecimal #:integer-literal/hexadecimal/prefix
+   #:integer-literal
+
+   #:float-literal/rational
+   #:float-literal
+
+   #:number-literal
+
+   #:string-literal/single-quotes
+   #:string-literal/double-quotes
+   #:string-literal/triple-quotes
+   #:string-literal/sextuple-quotes)
+
   #+sbcl (:lock t)
 
   (:documentation

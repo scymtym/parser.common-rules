@@ -22,7 +22,8 @@
 
                               (:file       "rules-anchors")
                               (:file       "rules-whitespace")
-                              (:file       "rules-comments"))))
+                              (:file       "rules-comments")
+                              (:file       "rules-literals"))))
 
   :in-order-to ((test-op (test-op :parser.common-rules-test))))
 
@@ -43,7 +44,8 @@
                  :components ((:file       "package")
 
                               (:file       "rules-anchors")
-                              (:file       "rules-comments")))))
+                              (:file       "rules-comments")
+                              (:file       "rules-literals")))))
 
 (defmethod perform ((operation test-op)
                     (component (eql (find-system :parser.common-rules-test))))

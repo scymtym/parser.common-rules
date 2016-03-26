@@ -14,6 +14,11 @@
 
    #:parser.common-rules)
 
+  (:import-from #:parser.common-rules
+   #:integer-literal/octal/no-sign
+   #:integer-literal/decimal/no-sign
+   #:integer-literal/hexadecimal/no-sign)
+
   ;; Test utilities
   (:export
    #:parses-are
@@ -50,7 +55,8 @@
                      ((&values production position success)
                       (apply #'esrap:parse ',rule input args)))
                 (list production position success))))
-       (declare (ignorable #'parse))
+       (declare (ignorable #'parse)
+                (notinline esrap:parse))
        ,@(mapcar #'process-case cases))))
 
 (defmacro define-rule-test (rule &body cases)
