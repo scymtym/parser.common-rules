@@ -27,9 +27,9 @@
        binary operators with given precedence relations and
        associativity.
 
-* TODO Tutorial
+* Tutorial
   #+BEGIN_SRC lisp :results silent :exports results :session "tutorial"
-    (ql:quickload :parser.common-rules)
+    (ql:quickload '(:parser.common-rules :parser.common-rules.operators))
   #+END_SRC
 ** Anchors
    "Anchor" rules match when the input around the current position has
@@ -246,9 +246,117 @@
    These rules can then be shared by all rules defined with
    src_lisp[:exports code]{defrule/s}.
 
-* TODO Dictionary
+** Infix Operators
+
+   #+begin_note
+   Because of additional dependencies, this part of the project is
+   provided as a separate system =parser.common-rules.operators=.
+   #+end_note
+
+   The macros for defining infix operators are probably the most
+   complex but also most useful part of this project. The macro
+   src_lisp[:exports code]{define-operator-rules}
+   defines a group of rules that implement a group unary and binary
+   operators with certain precedence relations:
+
+   #+BEGIN_SRC lisp :results silent :exports both :session "tutorial"
+     (parser.common-rules.operators:define-operator-rules
+         (:skippable?-expression (* #\Space))
+       (2 assign ":=" :associativity :none) ; lowest binding power
+       (2 term   "+")
+       (2 factor "*")
+       (2 expon  "^" :associativity :right)
+       (1 neg    "-")
+       (1 inc    "++" :fixity :postfix)     ; highest binding power
+       character)                           ; leaf expression
+   #+END_SRC
+
+   Parse results are constructed using the
+   [[https://github.com/scymtymarchitecture.builder-protocol][architecture.builder-protocol system]]. The following parsing code
+   and resulting parse tree demonstrate the precedence and
+   associativity properties:
+
+   #+BEGIN_SRC lisp :results value scalar :exports both :session "tutorial"
+     (architecture.builder-protocol:with-builder ('list)
+       (esrap:parse 'assign "x := a + b^c^d * -e"))
+   #+END_SRC
+
+   #+RESULTS:
+   #+begin_example
+   (:BINARY-OPERATOR
+    (:OPERAND
+     ((#\x)
+      ((:BINARY-OPERATOR
+        (:OPERAND
+         ((#\a)
+          ((:BINARY-OPERATOR
+            (:OPERAND
+             (((:BINARY-OPERATOR
+                (:OPERAND
+                 ((#\b)
+                  ((:BINARY-OPERATOR (:OPERAND ((#\c) (#\d))) :OPERATOR "^"
+                    :BOUNDS (11 . 14)))))
+                :OPERATOR "^" :BOUNDS (9 . 14)))
+              ((:UNARY-OPERATOR (:OPERAND ((#\e))) :OPERATOR "-" :BOUNDS
+                (17 . 19)))))
+            :OPERATOR "*" :BOUNDS (9 . 19)))))
+        :OPERATOR "+" :BOUNDS (5 . 19)))))
+    :OPERATOR ":=" :BOUNDS (0 . 19))
+   NIL
+   T
+   #+end_example
+
+   src_lisp[:exports code]{define-operator-rules} does is not
+   concerned with overriding operator precedence and associativity via
+   parentheses. This aspect is easily handled "manually", though:
+
+   #+BEGIN_SRC lisp :results silent :exports both :session "tutorial"
+     (parser.common-rules.operators:define-operator-rules
+         (:skippable?-expression (* #\Space))
+       (2 assign ":=" :associativity :none)
+       (2 term   "+")
+       (2 factor "*")
+       (2 expon  "^" :associativity :right)
+       (1 neg    "-")
+       (1 inc    "++" :fixity :postfix)
+       (or parenthesized character))
+
+     (esrap:defrule parenthesized
+         (and #\( assign #\))
+       (:function second))
+   #+END_SRC
+
+   Now, parenthesis can be used to override precedence and associativity:
+
+   #+BEGIN_SRC lisp :results value scalar :exports both :session "tutorial"
+     (architecture.builder-protocol:with-builder ('list)
+       (esrap:parse 'assign "(((z := a) + b)^c)^d * (-e)"))
+   #+END_SRC
+
+   #+RESULTS:
+   #+begin_example
+   (:BINARY-OPERATOR
+    (:OPERAND
+     (((:BINARY-OPERATOR
+        (:OPERAND
+         (((:BINARY-OPERATOR
+            (:OPERAND
+             (((:BINARY-OPERATOR (:OPERAND ((#\a) (#\b))) :OPERATOR "+" :BOUNDS
+                (2 . 7)))
+              (#\c)))
+            :OPERATOR "^" :BOUNDS (1 . 10)))
+          (#\d)))
+        :OPERATOR "^" :BOUNDS (0 . 13)))
+      ((:UNARY-OPERATOR (:OPERAND ((#\e))) :OPERATOR "-" :BOUNDS (17 . 19)))))
+    :OPERATOR "*" :BOUNDS (0 . 20))
+   NIL
+   T
+   #+end_example
+
+* Dictionary
   #+BEGIN_SRC lisp :results silent :exports results :session "doc"
-    (ql:quickload '(:alexandria :split-sequence :parser.common-rules))
+    (ql:quickload '(:alexandria :split-sequence
+                    :parser.common-rules :parser.common-rules.operators))
     (defun doc (symbol kind)
       (let* ((lambda-list (sb-introspect:function-lambda-list symbol))
              (string      (or (documentation symbol kind)
@@ -476,6 +584,190 @@
 
    DEFINER is the name of the macro used to define the "main"
    rule. Defaults to `esrap:defrule'.
+   #+end_example
+
+** Infix Operators
+   #+BEGIN_SRC lisp :exports results :session "doc"
+     (doc 'parser.common-rules.operators:define-unary-operator-rule 'function)
+   #+END_SRC
+
+   #+RESULTS:
+   #+begin_example
+   define-unary-operator-rule NAME OPERATOR-EXPRESSION NEXT &KEY (FIXITY PREFIX)
+                              (SKIPPABLE?-EXPRESSION) (DEFINER 'DEFRULE)
+
+   Define a rule NAME for parsing an unary operator expressions with
+   operator OPERATOR-EXPRESSION and operand NEXT.
+
+   FIXITY has to be one of
+
+   :prefix
+
+     Generate a prefix operator, i.e.
+
+       (and OPERATOR-EXPRESSION SKIPPABLE?-EXPRESSION NEXT)
+
+   :postfix
+
+     Generate a postfix operator, i.e.
+
+       (and NEXT SKIPPABLE?-EXPRESSION OPERATOR-EXPRESSION)
+
+   If supplied, SKIPPABLE?-EXPRESSION is the expression to be used for
+   parsing skippable input (usually whitespace) between
+   OPERATOR-EXPRESSION and NEXT. If SKIPPABLE?-EXPRESSION is not
+   supplied, a rule whose name is
+
+     (find-symbol (string '#:skippable?) (symbol-package OPERATOR-NAME))
+
+   is used.
+
+   If supplied, DEFINER names the macro that should be used to define
+   the rule. Otherwise `esrap:defrule' is used.
+   #+end_example
+
+   #+BEGIN_SRC lisp :exports results :session "doc"
+     (doc 'parser.common-rules.operators:define-binary-operator-rule 'function)
+   #+END_SRC
+
+   #+RESULTS:
+   #+begin_example
+   define-binary-operator-rule NAME OPERATOR-EXPRESSION NEXT &KEY
+                               (ASSOCIATIVITY LEFT) (SKIPPABLE?-EXPRESSION)
+                               (DEFINER 'DEFRULE)
+
+   Define a rule NAME for parsing a binary operator expressions with
+   operator OPERATOR-EXPRESSION and operands NEXT.
+
+   ASSOCIATIVITY has to be one of
+
+   :none
+
+     The defined binary operator will be non-associative, i.e. for an
+     OPERATOR-EXPRESSION ":=", the expressions x:=y:=z will not be
+     syntatically legal.
+
+   :left
+
+     The defined binary operator will associate to the left, i.e.
+     x+y+z will be parsed as (x+y)+z.
+
+   :right
+
+     The defined binary operator will associate to the right, i.e.
+     x^y^z will be parsed as x^(y^z).
+
+   :associative
+
+     The defined binary operator will associate to the left (but this
+     should not be relied upon).
+
+   If supplied, SKIPPABLE?-EXPRESSION is the expression to be used for
+   parsing skippable input (usually whitespace) between
+   OPERATOR-EXPRESSION and NEXT. If SKIPPABLE?-EXPRESSION is not
+   supplied, a rule whose name is
+
+     (find-symbol (string '#:skippable?) (symbol-package OPERATOR-NAME))
+
+   is used.
+
+   If supplied, DEFINER names the macro that should be used to define
+   the rule. Otherwise `esrap:defrule' is used.
+   #+end_example
+
+   #+BEGIN_SRC lisp :exports results :session "doc"
+     (doc 'parser.common-rules.operators:define-operator-rules 'function)
+   #+END_SRC
+
+   #+RESULTS:
+   #+begin_example
+   define-operator-rules (&KEY SKIPPABLE?-EXPRESSION) &BODY CLAUSES
+
+   Define rules for parsing infix operators according to CLAUSES.
+
+   The order of clauses in CLAUSES determines the precedence of
+   operators:
+
+     (define-operator-rules ()
+       OPERATOR-WITH-LOWEST-BINDING-POWER
+       ⋮
+       OPERATOR-WITH-HIGHEST-BINDING-POWER
+       LEAF-EXPRESSION)
+
+   All but the final clause in CLAUSES are of the form
+
+     (ARITY RULE-NAME OPERATOR-EXPRESSION &rest ARGS &key)
+
+   where
+
+   * ARITY is the number of operands accepted by the operator
+     being defined. The ARITY must be either 1 or 2.
+
+   * RULE-NAME is the name of the rule generated for the operator.
+
+   * OPERATOR-EXPRESSION is an expression for parsing the operator
+     token, e.g. #\* for multiplication.
+
+   * ARGS can be any of the keyword arguments accepted by
+     `define-unary-operator-rule' or `define-binary-operator-rule'
+     depending on ARITY, i.e.
+
+     * :fixity (:prefix | :postfix)
+
+       Only for unary operators. Fixity of the operator being defined.
+
+     * :associativity (:none | :left | :right | :associative)
+
+       Only for binary operators. Associativity of the operator being
+       defined.
+
+     * :skippable?-expression EXPRESSION
+
+       See below.
+
+     * :definer RULE-NAME
+
+       The macro used to define the operator rule. Defaults to
+       `esrap:defrule'.
+
+   The final LEAF-EXPRESSION clause is just a rule expression,
+   describing the "leafs" (i.e. not operator expressions) of the
+   operator grammar.
+
+   Whitespace handling can be controlled by specifying rules for
+   "skippable" input using the :skippable?-expression keyword
+   argument in ARGS. If supplied, SKIPPABLE?-EXPRESSION is applied to
+   all defined operators. If SKIPPABLE?-EXPRESSION is not supplied, a
+   rule whose name is
+
+     (find-symbol (string '#:skippable?) (symbol-package OPERATOR-NAME))
+
+   is used.
+
+   Example
+
+     (define-operator-rules (:skippable?-expression (* #\Space))
+       (2 term   "+") ; lowest binding power
+       (2 factor "*")
+       (1 neg    "-") ; highest binding power
+       #\x)           ; leaf expression
+
+     (architecture.builder-protocol:with-builder ('list)
+       (esrap:parse 'term "x + x * -x"))
+     =>
+     (:BINARY-OPERATOR
+      (:OPERAND (("x")
+                 ((:BINARY-OPERATOR
+                   (:OPERAND (("x")
+                              ((:UNARY-OPERATOR
+                                (:OPERAND (("x")))
+                                :OPERATOR "-" :BOUNDS (4 . 6)))))
+                   :OPERATOR "*" :BOUNDS (2 . 6)))))
+      :OPERATOR "+" :BOUNDS (0 . 6))
+
+   Note that this macro is not concerned with forcing operator
+   bindings via parentheses. See the documentation for recommendations
+   on that.
    #+end_example
 
 * Settings                                                         :noexport:
