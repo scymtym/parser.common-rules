@@ -16,7 +16,9 @@
 
   :components  ((:module     "src"
                  :serial     t
-                 :components ((:file       "package"))))
+                 :components ((:file       "package")
+
+                              (:file       "rules-anchors"))))
 
   :in-order-to ((test-op (test-op :parser.common-rules-test))))
 
@@ -34,7 +36,9 @@
 
   :components  ((:module     "test"
                  :serial     t
-                 :components ((:file       "package")))))
+                 :components ((:file       "package")
+
+                              (:file       "rules-anchors")))))
 
 (defmethod perform ((operation test-op)
                     (component (eql (find-system :parser.common-rules-test))))

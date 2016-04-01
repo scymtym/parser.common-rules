@@ -11,6 +11,13 @@
 
    #:esrap)
 
+  ;; Anchor rules
+  (:export
+   #:<beginning-of-input> #:<end-of-input>
+   #:<beginning-of-line>  #:<end-of-line>
+
+   #:<same-line>)
+
   #+sbcl (:lock t)
 
   (:documentation

@@ -31,6 +31,35 @@
   #+BEGIN_SRC lisp :results silent :exports results :session "tutorial"
     (ql:quickload :parser.common-rules)
   #+END_SRC
+** Anchors
+   "Anchor" rules match when the input around the current position has
+   certain properties and do not consume any input. For example:
+   #+BEGIN_SRC lisp :results value scalar :exports both :session "tutorial"
+     (esrap:parse 'parser.common-rules:<beginning-of-line> (format nil "foo~%bar")
+                  :start 4 :junk-allowed t)
+   #+END_SRC
+
+   #+RESULTS:
+   : :BEGINNING-OF-LINE
+   : 4
+   : T
+
+   The rules src_lisp[:exports code]{<end-of-line>},
+   src_lisp[:exports code]{<beginning-of-input>} and
+   src_lisp[:exports code]{<end-of-input>} work similarly.
+
+   The final rule, src_lisp[:exports code]{<same-line>} is different
+   in that it does consume input:
+
+   #+BEGIN_SRC lisp :results value scalar :exports both :session "tutorial"
+     (esrap:parse 'parser.common-rules:<same-line> (format nil "foo bar~%baz")
+                  :start 4 :junk-allowed t)
+   #+END_SRC
+
+   #+RESULTS:
+   : "bar"
+   : 7
+   : T
 
 * TODO Dictionary
   #+BEGIN_SRC lisp :results silent :exports results :session "doc"
@@ -52,7 +81,43 @@
         (format nil "~(~A~) ~<~{~A~^ ~}~:@>~2%~{~A~^~%~}"
                 symbol (list lambda-list) (list* (first lines) trimmed))))
   #+END_SRC
+** Anchors
+   #+BEGIN_EXAMPLE
+     <beginning-of-input>
 
+     Matches at the beginning of the input (i.e. there is no preceding
+     character). Produces :beginning-of-input and does not consume input.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     <end-of-input>
+
+     Matches at the end of the input line (i.e. there is no following
+     character). Produces :end-of-input and does not consume input.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     <beginning-of-line>
+
+     Matches at the beginning of a line (i.e. the preceding character is
+     #\Newline or there is no preceding character). Produces
+     :beginning-of-line and does not consume input.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     <end-of-line>
+
+     Matches at the end of a line (i.e. the following character is
+     #\Newline or there is no following character). Produces :end-of-line
+     and does not consume input.
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+     <same-line>
+
+     Consumes all characters until <end-of-line> and produces the resulting
+     string.
+   #+END_EXAMPLE
 * Settings                                                         :noexport:
 
 #+OPTIONS: H:2 num:nil toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
