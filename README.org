@@ -262,13 +262,14 @@
    #+BEGIN_SRC lisp :results silent :exports both :session "tutorial"
      (parser.common-rules.operators:define-operator-rules
          (:skippable?-expression (* #\Space))
-       (2 assign ":=" :associativity :none) ; lowest binding power
-       (2 term   "+")
-       (2 factor "*")
-       (2 expon  "^" :associativity :right)
-       (1 neg    "-")
-       (1 inc    "++" :fixity :postfix)     ; highest binding power
-       character)                           ; leaf expression
+       (2 assign       ":="    :associativity :none)  ; lowest binding power
+       (3 if-then-else "?" ":")
+       (2 term         "+")
+       (2 factor       "*")
+       (2 expon        "^"     :associativity :right)
+       (1 neg          "-")
+       (1 inc          "++"    :fixity :postfix)      ; highest binding power
+       character)                                     ; leaf expression
    #+END_SRC
 
    Parse results are constructed using the
@@ -278,7 +279,7 @@
 
    #+BEGIN_SRC lisp :results value scalar :exports both :session "tutorial"
      (architecture.builder-protocol:with-builder ('list)
-       (esrap:parse 'assign "x := a + b^c^d * -e"))
+       (esrap:parse 'assign "x := a ? b : c + d^e^f * -g"))
    #+END_SRC
 
    #+RESULTS:
@@ -286,22 +287,26 @@
    (:BINARY-OPERATOR
     (:OPERAND
      ((#\x)
-      ((:BINARY-OPERATOR
+      ((:TERNARY-OPERATOR
         (:OPERAND
-         ((#\a)
+         ((#\a) (#\b)
           ((:BINARY-OPERATOR
             (:OPERAND
-             (((:BINARY-OPERATOR
+             ((#\c)
+              ((:BINARY-OPERATOR
                 (:OPERAND
-                 ((#\b)
-                  ((:BINARY-OPERATOR (:OPERAND ((#\c) (#\d))) :OPERATOR "^"
-                    :BOUNDS (11 . 14)))))
-                :OPERATOR "^" :BOUNDS (9 . 14)))
-              ((:UNARY-OPERATOR (:OPERAND ((#\e))) :OPERATOR "-" :BOUNDS
-                (17 . 19)))))
-            :OPERATOR "*" :BOUNDS (9 . 19)))))
-        :OPERATOR "+" :BOUNDS (5 . 19)))))
-    :OPERATOR ":=" :BOUNDS (0 . 19))
+                 (((:BINARY-OPERATOR
+                    (:OPERAND
+                     ((#\d)
+                      ((:BINARY-OPERATOR (:OPERAND ((#\e) (#\f))) :OPERATOR "^"
+                        :BOUNDS (19 . 22)))))
+                    :OPERATOR "^" :BOUNDS (17 . 22)))
+                  ((:UNARY-OPERATOR (:OPERAND ((#\g))) :OPERATOR "-" :BOUNDS
+                    (25 . 27)))))
+                :OPERATOR "*" :BOUNDS (17 . 27)))))
+            :OPERATOR "+" :BOUNDS (13 . 27)))))
+        :OPERATOR1 "?" :OPERATOR2 ":" :BOUNDS (5 . 27)))))
+    :OPERATOR ":=" :BOUNDS (0 . 27))
    NIL
    T
    #+end_example
@@ -313,12 +318,13 @@
    #+BEGIN_SRC lisp :results silent :exports both :session "tutorial"
      (parser.common-rules.operators:define-operator-rules
          (:skippable?-expression (* #\Space))
-       (2 assign ":=" :associativity :none)
-       (2 term   "+")
-       (2 factor "*")
-       (2 expon  "^" :associativity :right)
-       (1 neg    "-")
-       (1 inc    "++" :fixity :postfix)
+       (2 assign       ":="    :associativity :none)
+       (3 if-then-else "?" ":")
+       (2 term         "+")
+       (2 factor       "*")
+       (2 expon        "^"     :associativity :right)
+       (1 neg          "-")
+       (1 inc          "++"    :fixity :postfix)
        (or parenthesized character))
 
      (esrap:defrule parenthesized
@@ -680,6 +686,33 @@
    #+end_example
 
    #+BEGIN_SRC lisp :exports results :session "doc"
+     (doc 'parser.common-rules.operators:define-ternary-operator-rule 'function)
+   #+END_SRC
+
+   #+RESULTS:
+   #+begin_example
+   define-ternary-operator-rule NAME OPERATOR1-EXPRESSION OPERATOR2-EXPRESSION
+                                NEXT &KEY (SKIPPABLE?-EXPRESSION)
+                                (DEFINER 'DEFRULE)
+
+   Define a rule NAME for parsing a ternary operator expressions with
+   operators OPERATOR1-EXPRESSION and OPERATOR2-EXPRESSION and
+   operands NEXT.
+
+   If supplied, SKIPPABLE?-EXPRESSION is the expression to be used for
+   parsing skippable input (usually whitespace) between
+   OPERATOR-EXPRESSION and NEXT. If SKIPPABLE?-EXPRESSION is not
+   supplied, a rule whose name is
+
+     (find-symbol (string '#:skippable?) (symbol-package OPERATOR-NAME))
+
+   is used.
+
+   If supplied, DEFINER names the macro that should be used to define
+   the rule. Otherwise `esrap:defrule' is used.
+   #+end_example
+
+   #+BEGIN_SRC lisp :exports results :session "doc"
      (doc 'parser.common-rules.operators:define-operator-rules 'function)
    #+END_SRC
 
@@ -705,7 +738,7 @@
    where
 
    * ARITY is the number of operands accepted by the operator
-     being defined. The ARITY must be either 1 or 2.
+     being defined. The ARITY must be either 1, 2 or 3.
 
    * RULE-NAME is the name of the rule generated for the operator.
 
@@ -713,8 +746,8 @@
      token, e.g. #\* for multiplication.
 
    * ARGS can be any of the keyword arguments accepted by
-     `define-unary-operator-rule' or `define-binary-operator-rule'
-     depending on ARITY, i.e.
+     `define-unary-operator-rule', `define-binary-operator-rule' or
+     `define-ternary-operator-rule' depending on ARITY, i.e.
 
      * :fixity (:prefix | :postfix)
 

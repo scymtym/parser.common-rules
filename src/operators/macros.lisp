@@ -37,6 +37,18 @@
           (* :operand (list left right)))
         right)))
 
+(defun %ternary-operator-production->node (production start end)
+  (destructuring-bind (left (s1 operator1 s2) middle (s3 operator2 s4) right)
+      production
+    (declare (ignore s1 s2 s3 s4))
+    (if operator1
+        (architecture.builder-protocol:node*
+            (:ternary-operator :operator1 operator1
+                               :operator2 operator2
+                               :bounds    (cons start end))
+          (* :operand (list left middle right)))
+        left)))
+
 ;;; Unary and binary operators
 
 (defun make-unary-operator-expression (operator-expression fixity
@@ -162,6 +174,51 @@
      (:lambda (production &bounds start end)
        (%binary-operator-production->node production start end))))
 
+(defun make-ternary-operator-expression
+    (operator1-expression operator2-expression
+     name next skippable?-expression)
+  (let+ (((&flet operator-symbol (operator-expression)
+            `(and ,skippable?-expression
+                  ,operator-expression
+                  ,skippable?-expression)))
+         ((&flet operator-expression ()
+            `(and ,name
+                  ,(operator-symbol operator1-expression)
+                  ,name
+                  ,(operator-symbol operator2-expression)
+                  ,name)))
+         ((&flet fallthrough-expression ()
+            `(and ,next (and (and) (and) (and)) (and) (and (and) (and) (and)) (and)))))
+    `(or ,(operator-expression)
+         ,(fallthrough-expression))))
+
+(defmacro define-ternary-operator-rule
+    (name operator1-expression operator2-expression next
+     &key
+     (skippable?-expression (skippable-rule-for-name 'skippable? name))
+     (definer               'defrule))
+  "Define a rule NAME for parsing a ternary operator expressions with
+   operators OPERATOR1-EXPRESSION and OPERATOR2-EXPRESSION and
+   operands NEXT.
+
+   If supplied, SKIPPABLE?-EXPRESSION is the expression to be used for
+   parsing skippable input (usually whitespace) between
+   OPERATOR-EXPRESSION and NEXT. If SKIPPABLE?-EXPRESSION is not
+   supplied, a rule whose name is
+
+     (find-symbol (string '#:skippable?) (symbol-package OPERATOR-NAME))
+
+   is used.
+
+   If supplied, DEFINER names the macro that should be used to define
+   the rule. Otherwise `esrap:defrule' is used."
+  `(,definer ,name
+       ,(make-ternary-operator-expression
+         operator1-expression operator2-expression
+         name next skippable?-expression)
+     (:lambda (production &bounds start end)
+       (%ternary-operator-production->node production start end))))
+
 ;;; Operator precedence
 
 (defmacro define-operator-rules ((&key skippable?-expression) &body clauses)
@@ -183,7 +240,7 @@
    where
 
    * ARITY is the number of operands accepted by the operator
-     being defined. The ARITY must be either 1 or 2.
+     being defined. The ARITY must be either 1, 2 or 3.
 
    * RULE-NAME is the name of the rule generated for the operator.
 
@@ -191,8 +248,8 @@
      token, e.g. #\\* for multiplication.
 
    * ARGS can be any of the keyword arguments accepted by
-     `define-unary-operator-rule' or `define-binary-operator-rule'
-     depending on ARITY, i.e.
+     `define-unary-operator-rule', `define-binary-operator-rule' or
+     `define-ternary-operator-rule' depending on ARITY, i.e.
 
      * :fixity (:prefix | :postfix)
 
@@ -259,18 +316,28 @@
          (operator-clauses (butlast clauses)))
     `(progn
        ,@(mapcar
-          (lambda+ ((arity                name        operator &rest args)
+          (lambda+ ((arity                name        &rest args)
                     (next-first &optional next-second &rest &ign))
             (let+ ((next-name (or next-second next-first))
-                   ((&flet make-rule (definer)
+                   ((&flet make-rule (definer expressions args)
                       `(,definer ,name
-                         ,operator ,next-name
-                         ,@(when skippable?-expression
-                             `(:skippable?-expression ,skippable?-expression))
-                         ,@args))))
+                          ,@expressions
+                          ,@(when skippable?-expression
+                              `(:skippable?-expression ,skippable?-expression))
+                          ,@args))))
               (ecase arity
-                (1 (make-rule 'define-unary-operator-rule))
-                (2 (make-rule 'define-binary-operator-rule)))))
+                (1
+                 (let+ (((operator &rest args) args))
+                   (make-rule 'define-unary-operator-rule
+                              (list operator next-name) args)))
+                (2
+                 (let+ (((operator &rest args) args))
+                   (make-rule 'define-binary-operator-rule
+                              (list operator next-name) args)))
+                (3
+                 (let+ (((operator1 operator2 &rest args) args))
+                   (make-rule 'define-ternary-operator-rule
+                              (list operator1 operator2 next-name) args))))))
           operator-clauses
           (append (rest operator-clauses) (list leaf-clause)))
        nil)))

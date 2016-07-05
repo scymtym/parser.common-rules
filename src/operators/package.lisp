@@ -19,6 +19,7 @@
   (:export
    #:define-unary-operator-rule
    #:define-binary-operator-rule
+   #:define-ternary-operator-rule
 
    #:define-operator-rules)
 

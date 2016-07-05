@@ -88,6 +88,38 @@
       ("+1"    nil)
       ("1++2"  #\1 1 t))))
 
+(test define-ternary-operator.smoke
+  "Smoke test for the `define-ternary-operator-rule' macro."
+
+  (define-ternary-operator-rule if-then-else
+      #\? #\: (digit-char-p character)
+      :skippable?-expression (* #\Space))
+
+  (architecture.builder-protocol:with-builder ('list)
+    (parses-are (if-then-else)
+      ;; Some matching inputs.
+      ("1?2:3"     '(:ternary-operator
+                     (:operand ((#\1) (#\2) (#\3)))
+                     :operator1 "?" :operator2 ":" :bounds (0 . 5)))
+      ("1 ? 2 : 3" '(:ternary-operator
+                     (:operand ((#\1) (#\2) (#\3)))
+                     :operator1 "?" :operator2 ":" :bounds (0 . 9)))
+      ("1?2?3:4:5" '(:ternary-operator
+                     (:operand ((#\1)
+                                ((:ternary-operator
+                                  (:operand ((#\2) (#\3) (#\4)))
+                                  :operator1 "?" :operator2 ":" :bounds (2 . 7)))
+                                (#\5)))
+                     :operator1 "?" :operator2 ":" :bounds (0 . 9)))
+
+      ;; Some non-matching inputs.
+      ("1?2"       #\1 1)
+      ("1:2"       #\1 1)
+      ("1?2:"      #\1 1)
+      ("1?2?3"     #\1 1)
+      ("1??2:3"    #\1 1)
+      (" 1?2:3"    nil))))
+
 (test define-operators.syntax-errors
   "Test errors signaled for syntactically invalid
    `define-operator-rules' forms."
@@ -113,12 +145,13 @@
   "Smoke test for the `define-operators' macro."
 
   (define-operator-rules (:skippable?-expression (* #\Space))
-    (2 assign ":=" :associativity :none)
-    (2 term   "+")
-    (2 factor "*")
-    (2 expon  "^" :associativity :right)
-    (1 neg    "-")
-    (1 inc    "++" :fixity :postfix)
+    (2 assign       ":="    :associativity :none)
+    (3 if-then-else "?" ":")
+    (2 term         "+")
+    (2 factor       "*")
+    (2 expon        "^"     :associativity :right)
+    (1 neg          "-")
+    (1 inc          "++"    :fixity :postfix)
     (digit-char-p character))
 
   (architecture.builder-protocol:with-builder ('list)
@@ -149,6 +182,9 @@
                                                :operator "++" :bounds (4 . 7)))))
                                   :operator "*" :bounds (2 . 7)))))
                      :operator "+" :bounds (0 . 7)))
+      ("1?2:3"     '(:ternary-operator
+                     (:operand ((#\1) (#\2) (#\3)))
+                     :operator1 "?" :operator2 ":" :bounds (0 . 5)))
 
       ;; Some non-matching inputs.
       ("1:=2:=3"   '(:binary-operator
