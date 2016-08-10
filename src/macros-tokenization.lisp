@@ -9,11 +9,14 @@
 ;;; Utilities
 
 (defun skippable-rule-for-name (skippable-name name)
-  (let ((package (symbol-package name)))
-    (or (find-symbol (string skippable-name) *package*)
+  ;; The initial idea was using (symbol-package name) but that doesn't
+  ;; work when the symbol naming the rule is from a different package
+  ;; than the current package (at `defrule/s' expansion time).
+  (let ((package *package*))
+    (or (find-symbol (string skippable-name))
         (error "~@<Could not find ~A rule in package ~A for name ~
                 ~S.~@:>"
-               skippable-name *package* name))))
+               skippable-name package name))))
 
 ;;; Macros
 
