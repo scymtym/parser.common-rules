@@ -27,6 +27,9 @@
        binary operators with given precedence relations and
        associativity.
 
+  #+ATTR_HTML: :alt "build status image" :title Build Status :align right
+  [[https://travis-ci.org/scymtym/parser.common-rules][https://travis-ci.org/scymtym/parser.common-rules.svg]]
+
 * Tutorial
   #+BEGIN_SRC lisp :results silent :exports results :session "tutorial"
     (ql:quickload '(:parser.common-rules :parser.common-rules.operators))
