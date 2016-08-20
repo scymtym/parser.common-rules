@@ -157,7 +157,7 @@
   (:function code-char))
 
 (defrule string-escape-character/character
-    (or #\b #\t #\n #\f #\r)
+    (or #\a #\b #\f #\n #\r #\t #\v)
   (:lambda (character)
     (switch (character :test #'string=)
       (#\a #\Bel)
