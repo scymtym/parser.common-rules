@@ -251,9 +251,9 @@
    bindings via parentheses. See the documentation for recommendations
    on that."
   (let ((length (length clauses)))
-   (unless (>= length 2)
-     (error "~@<~S needs at least two clauses, ~:S has ~R.~@:>"
-            'define-operators clauses length)))
+    (unless (>= length 2)
+      (error "~@<~S needs at least two clauses, ~:S has ~R.~@:>"
+             'define-operators clauses length)))
 
   (let* ((leaf-clause      (list (lastcar clauses)))
          (operator-clauses (butlast clauses)))
