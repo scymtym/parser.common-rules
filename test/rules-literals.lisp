@@ -170,6 +170,18 @@
 
 ;;; String literals
 
+(define-rule-test string-literal/single-quotes
+  ("'bla\\020 \\' \" \\\\ '" (format nil "bla~C ' \" \\ " #\Dle))
+  ("'\\x20'"              " "))
+
 (define-rule-test string-literal/double-quotes
-  ("\"bla\\020 \\\" \\\\ \"" (format nil "bla~C \" \\ " #\Dle))
-  ("\"\\x20\""               " "))
+  ("\"bla\\020 \\\" ' \\\\ \"" (format nil "bla~C \" ' \\ " #\Dle))
+  ("\"\\x20\""                 " "))
+
+(define-rule-test string-literal/triple-quotes
+  ("'''bla\\020 \\' \" \\\\ '''" "bla\\020 \\' \" \\\\ ")
+  ("'''\\x20'''"                 "\\x20"))
+
+(define-rule-test string-literal/sextuple-quotes
+  ("\"\"\"bla\\020 \\\" ' \\\\ \"\"\"" "bla\\020 \\\" ' \\\\ ")
+  ("\"\"\"\\x20\"\"\""                 "\\x20"))
