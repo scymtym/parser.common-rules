@@ -179,7 +179,7 @@
    + src_lisp[:exports code]{identifier}
    + src_lisp[:exports code]{identifier/s}
    + src_lisp[:exports code]{identifier/?s}
-   The second and third rule parse an identifier followed by mandatory
+   The second and third rules parse an identifier followed by mandatory
    and optional "skippable" text (i.e. some form of whitespace in most
    cases) respectively. These rules can be used in places that require
    or allow an identifier to be separated by whitespace from the next
@@ -195,7 +195,7 @@
          (and identifier/?s equals/?s (* (digit-char-p character))))
    #+END_SRC
 
-   This rules behaves like a parser with lexical analysis phase would:
+   This rule behaves like a parser with lexical analysis phase would:
 
    #+BEGIN_SRC lisp :results value table:exports both :session "tutorial" :colnames '("input" "production")
      (mapcar (lambda (input)
@@ -255,9 +255,9 @@
 
    The macros for defining infix operators are probably the most
    complex but also most useful part of this project. The macro
-   src_lisp[:exports code]{define-operator-rules}
-   defines a group of rules that implement a group unary and binary
-   operators with certain precedence relations:
+   src_lisp[:exports code]{define-operator-rules} defines a group of
+   rules that implement a group of unary and binary operators with
+   certain precedence relations:
 
    #+BEGIN_SRC lisp :results silent :exports both :session "tutorial"
      (parser.common-rules.operators:define-operator-rules
@@ -306,8 +306,8 @@
    T
    #+end_example
 
-   src_lisp[:exports code]{define-operator-rules} does is not
-   concerned with overriding operator precedence and associativity via
+   src_lisp[:exports code]{define-operator-rules} is not concerned
+   with overriding operator precedence and associativity via
    parentheses. This aspect is easily handled "manually", though:
 
    #+BEGIN_SRC lisp :results silent :exports both :session "tutorial"
