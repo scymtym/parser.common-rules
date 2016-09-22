@@ -10,7 +10,7 @@
     :in :parser.common-rules.operators)
 (in-suite :parser.common-rules.operators.macros)
 
-(test define-unary-operator.prefix
+(test define-unary-operator-rule.prefix
   "Test the `define-unary-operator-rule' macro for prefix direction."
 
   (define-unary-operator-rule minus
@@ -36,7 +36,7 @@
       ("1-"  #\1 1)
       ("1 -" #\1 1))))
 
-(test define-unary-operator.postfix
+(test define-unary-operator-rule.postfix
   "Test the `define-unary-operator-rule' macro for postfix direction."
 
   (define-unary-operator-rule plusplus
@@ -62,7 +62,7 @@
       ("++1"  nil)
       ("++ 1" nil))))
 
-(test define-binary-operator.smoke
+(test define-binary-operator-rule.smoke
   "Smoke test for the `define-binary-operator-rule' macro."
 
   (define-binary-operator-rule plus
@@ -88,7 +88,7 @@
       ("+1"    nil)
       ("1++2"  #\1 1 t))))
 
-(test define-ternary-operator.smoke
+(test define-ternary-operator-rule.smoke
   "Smoke test for the `define-ternary-operator-rule' macro."
 
   (define-ternary-operator-rule if-then-else
@@ -120,7 +120,7 @@
       ("1??2:3"    #\1 1)
       (" 1?2:3"    nil))))
 
-(test define-operators.syntax-errors
+(test define-operator-rules.syntax-errors
   "Test errors signaled for syntactically invalid
    `define-operator-rules' forms."
 
@@ -141,8 +141,8 @@
                   (2 foo "+" :associativity :foo)
                   leaf))))
 
-(test define-operators.smoke
-  "Smoke test for the `define-operators' macro."
+(test define-operator-rules.smoke
+  "Smoke test for the `define-operator-rules' macro."
 
   (define-operator-rules (:skippable?-expression (* #\Space))
     (2 assign       ":="    :associativity :none)
@@ -192,9 +192,9 @@
                      :operator ":=" :bounds (0 . 4))
                    4 t))))
 
-(test define-operators.parentheses
+(test define-operator-rules.parentheses
   "Smoke test added support for parenthesis to the output of the
-   `define-operators' macro."
+   `define-operator-rules' macro."
 
   (define-operator-rules (:skippable?-expression (* #\Space))
     (2 assign ":=" :associativity :none)
