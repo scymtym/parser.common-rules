@@ -341,14 +341,18 @@
         (:OPERAND
          (((:BINARY-OPERATOR
             (:OPERAND
-             (((:BINARY-OPERATOR (:OPERAND ((#\a) (#\b))) :OPERATOR "+" :BOUNDS
-                (2 . 7)))
+             (((:BINARY-OPERATOR
+                (:OPERAND
+                 (((:BINARY-OPERATOR (:OPERAND ((#\z) (#\a))) :OPERATOR ":="
+                    :BOUNDS (3 . 9)))
+                  (#\b)))
+                :OPERATOR "+" :BOUNDS (2 . 14)))
               (#\c)))
-            :OPERATOR "^" :BOUNDS (1 . 10)))
+            :OPERATOR "^" :BOUNDS (1 . 17)))
           (#\d)))
-        :OPERATOR "^" :BOUNDS (0 . 13)))
-      ((:UNARY-OPERATOR (:OPERAND ((#\e))) :OPERATOR "-" :BOUNDS (17 . 19)))))
-    :OPERATOR "*" :BOUNDS (0 . 20))
+        :OPERATOR "^" :BOUNDS (0 . 20)))
+      ((:UNARY-OPERATOR (:OPERAND ((#\e))) :OPERATOR "-" :BOUNDS (24 . 26)))))
+    :OPERATOR "*" :BOUNDS (0 . 27))
    NIL
    T
    #+end_example
