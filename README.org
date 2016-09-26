@@ -605,6 +605,7 @@
    #+begin_example
    define-unary-operator-rule NAME OPERATOR-EXPRESSION NEXT &KEY (FIXITY PREFIX)
                               (SKIPPABLE?-EXPRESSION) (DEFINER 'DEFRULE)
+                              (NODE-KIND UNARY-OPERATOR)
 
    Define a rule NAME for parsing an unary operator expressions with
    operator OPERATOR-EXPRESSION and operand NEXT.
@@ -644,7 +645,7 @@
    #+begin_example
    define-binary-operator-rule NAME OPERATOR-EXPRESSION NEXT &KEY
                                (ASSOCIATIVITY LEFT) (SKIPPABLE?-EXPRESSION)
-                               (DEFINER 'DEFRULE)
+                               (DEFINER 'DEFRULE) (NODE-KIND BINARY-OPERATOR)
 
    Define a rule NAME for parsing a binary operator expressions with
    operator OPERATOR-EXPRESSION and operands NEXT.
@@ -693,7 +694,7 @@
    #+begin_example
    define-ternary-operator-rule NAME OPERATOR1-EXPRESSION OPERATOR2-EXPRESSION
                                 NEXT &KEY (SKIPPABLE?-EXPRESSION)
-                                (DEFINER 'DEFRULE)
+                                (DEFINER 'DEFRULE) (NODE-KIND TERNARY-OPERATOR)
 
    Define a rule NAME for parsing a ternary operator expressions with
    operators OPERATOR1-EXPRESSION and OPERATOR2-EXPRESSION and
@@ -718,7 +719,11 @@
 
    #+RESULTS:
    #+begin_example
-   define-operator-rules (&KEY SKIPPABLE?-EXPRESSION) &BODY CLAUSES
+   define-operator-rules (&KEY SKIPPABLE?-EXPRESSION
+                          (UNARY-NODE-KIND UNARY-OPERATOR)
+                          (BINARY-NODE-KIND BINARY-OPERATOR)
+                          (TERNARY-NODE-KIND TERNARY-OPERATOR))
+                         &BODY CLAUSES
 
    Define rules for parsing infix operators according to CLAUSES.
 

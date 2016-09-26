@@ -13,13 +13,12 @@
 
 (macrolet
     ((define-unary-operator-production->node (name structure)
-       `(defun ,name (production start end)
+       `(defun ,name (kind production start end)
           (destructuring-bind ,structure production
             (declare (ignore s))
             (if operator
                 (architecture.builder-protocol:node*
-                    (:unary-operator :operator operator
-                                     :bounds   (cons start end))
+                    (kind :operator operator :bounds (cons start end))
                   (* :operand (list operand)))
                 operand)))))
   (define-unary-operator-production->node
@@ -27,25 +26,24 @@
   (define-unary-operator-production->node
       %unary-operator-production->node/postfix (operand (s operator))))
 
-(defun %binary-operator-production->node (production start end)
+(defun %binary-operator-production->node (kind production start end)
   (destructuring-bind (left (s1 operator s2) right)  production
     (declare (ignore s1 s2))
     (if operator
         (architecture.builder-protocol:node*
-            (:binary-operator :operator operator
-                              :bounds   (cons start end))
+            (kind :operator operator :bounds (cons start end))
           (* :operand (list left right)))
         right)))
 
-(defun %ternary-operator-production->node (production start end)
+(defun %ternary-operator-production->node (kind production start end)
   (destructuring-bind (left (s1 operator1 s2) middle (s3 operator2 s4) right)
       production
     (declare (ignore s1 s2 s3 s4))
     (if operator1
         (architecture.builder-protocol:node*
-            (:ternary-operator :operator1 operator1
-                               :operator2 operator2
-                               :bounds    (cons start end))
+            (kind :operator1 operator1
+                  :operator2 operator2
+                  :bounds    (cons start end))
           (* :operand (list left middle right)))
         left)))
 
@@ -70,7 +68,8 @@
      &key
      (fixity                :prefix)
      (skippable?-expression (skippable-rule-for-name 'skippable? name))
-     (definer               'defrule))
+     (definer               'defrule)
+     (node-kind             :unary-operator))
   "Define a rule NAME for parsing an unary operator expressions with
    operator OPERATOR-EXPRESSION and operand NEXT.
 
@@ -106,7 +105,7 @@
        (,(ecase fixity
            (:prefix  '%unary-operator-production->node/prefix)
            (:postfix '%unary-operator-production->node/postfix))
-        production start end))))
+        ,node-kind production start end))))
 
 (defun make-binary-operator-expression (operator-expression associativity
                                         name next skippable?-expression)
@@ -130,7 +129,8 @@
      &key
      (associativity         :left)
      (skippable?-expression (skippable-rule-for-name 'skippable? name))
-     (definer               'defrule))
+     (definer               'defrule)
+     (node-kind             :binary-operator))
   "Define a rule NAME for parsing a binary operator expressions with
    operator OPERATOR-EXPRESSION and operands NEXT.
 
@@ -172,7 +172,7 @@
        ,(make-binary-operator-expression
          operator-expression associativity name next skippable?-expression)
      (:lambda (production &bounds start end)
-       (%binary-operator-production->node production start end))))
+       (%binary-operator-production->node ,node-kind production start end))))
 
 (defun make-ternary-operator-expression
     (operator1-expression operator2-expression
@@ -196,7 +196,8 @@
     (name operator1-expression operator2-expression next
      &key
      (skippable?-expression (skippable-rule-for-name 'skippable? name))
-     (definer               'defrule))
+     (definer               'defrule)
+     (node-kind             :ternary-operator))
   "Define a rule NAME for parsing a ternary operator expressions with
    operators OPERATOR1-EXPRESSION and OPERATOR2-EXPRESSION and
    operands NEXT.
@@ -217,11 +218,16 @@
          operator1-expression operator2-expression
          name next skippable?-expression)
      (:lambda (production &bounds start end)
-       (%ternary-operator-production->node production start end))))
+       (%ternary-operator-production->node ,node-kind production start end))))
 
 ;;; Operator precedence
 
-(defmacro define-operator-rules ((&key skippable?-expression) &body clauses)
+(defmacro define-operator-rules ((&key
+                                  skippable?-expression
+                                  (unary-node-kind   :unary-operator)
+                                  (binary-node-kind  :binary-operator)
+                                  (ternary-node-kind :ternary-operator))
+                                 &body clauses)
   "Define rules for parsing infix operators according to CLAUSES.
 
    The order of clauses in CLAUSES determines the precedence of
@@ -319,25 +325,30 @@
           (lambda+ ((arity                name        &rest args)
                     (next-first &optional next-second &rest &ign))
             (let+ ((next-name (or next-second next-first))
-                   ((&flet make-rule (definer expressions args)
+                   ((&flet make-rule (definer expressions node-kind args)
                       `(,definer ,name
                           ,@expressions
                           ,@(when skippable?-expression
                               `(:skippable?-expression ,skippable?-expression))
+                          ,@(when node-kind
+                              `(:node-kind ,node-kind))
                           ,@args))))
               (ecase arity
                 (1
                  (let+ (((operator &rest args) args))
                    (make-rule 'define-unary-operator-rule
-                              (list operator next-name) args)))
+                              (list operator next-name)
+                              unary-node-kind args)))
                 (2
                  (let+ (((operator &rest args) args))
                    (make-rule 'define-binary-operator-rule
-                              (list operator next-name) args)))
+                              (list operator next-name)
+                              binary-node-kind args)))
                 (3
                  (let+ (((operator1 operator2 &rest args) args))
                    (make-rule 'define-ternary-operator-rule
-                              (list operator1 operator2 next-name) args))))))
+                              (list operator1 operator2 next-name)
+                              ternary-node-kind args))))))
           operator-clauses
           (append (rest operator-clauses) (list leaf-clause)))
        nil)))

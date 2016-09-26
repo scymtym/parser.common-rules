@@ -62,6 +62,22 @@
       ("++1"  nil)
       ("++ 1" nil))))
 
+(test define-unary-operator-rule.node-kind
+  "Test specifying the node kind in `define-unary-operator-rule'."
+
+  (define-unary-operator-rule custom-minus
+      #\- (digit-char-p character)
+      :fixity                :prefix
+      :skippable?-expression (* #\Space)
+      :node-kind             :custom-operator)
+
+  (architecture.builder-protocol:with-builder ('list)
+    (parses-are (custom-minus)
+      ("-1" '(:custom-operator
+              (:operand ((#\1)))
+              :operator "-" :bounds (0 . 2))
+            nil))))
+
 (test define-binary-operator-rule.smoke
   "Smoke test for the `define-binary-operator-rule' macro."
 
@@ -87,6 +103,21 @@
       ("1+"    #\1 1 t)
       ("+1"    nil)
       ("1++2"  #\1 1 t))))
+
+(test define-binary-operator-rule.node-kind
+  "Test specifying the node kind in `define-binary-operator-rule'."
+
+  (define-binary-operator-rule custom-plus
+      #\+ (digit-char-p character)
+      :skippable?-expression (* #\Space)
+      :node-kind             :custom-operator)
+
+  (architecture.builder-protocol:with-builder ('list)
+    (parses-are (custom-plus)
+      ("1+2" '(:custom-operator
+               (:operand ((#\1) (#\2)))
+               :operator "+" :bounds (0 . 3))
+             nil))))
 
 (test define-ternary-operator-rule.smoke
   "Smoke test for the `define-ternary-operator-rule' macro."
@@ -119,6 +150,21 @@
       ("1?2?3"     #\1 1)
       ("1??2:3"    #\1 1)
       (" 1?2:3"    nil))))
+
+(test define-ternary-operator-rule.node-kind
+  "Test specifying the node kind in `define-ternary-operator-rule'."
+
+  (define-ternary-operator-rule custom-if-then-else
+      #\? #\: (digit-char-p character)
+      :skippable?-expression (* #\Space)
+      :node-kind             :custom-operator)
+
+  (architecture.builder-protocol:with-builder ('list)
+    (parses-are (custom-if-then-else)
+      ("1?2:3" '(:custom-operator
+                 (:operand ((#\1) (#\2) (#\3)))
+                 :operator1 "?" :operator2 ":" :bounds (0 . 5))
+               nil))))
 
 (test define-operator-rules.syntax-errors
   "Test errors signaled for syntactically invalid
