@@ -166,7 +166,7 @@
       (#\n #\Newline)
       (#\r #\Return)
       (#\t #\Tab)
-      (#\v #\Line_Tabulation))))
+      (#\v #\Vt))))
 
 (defrule string-escape-sequence
     (and #\\ (or #\\
