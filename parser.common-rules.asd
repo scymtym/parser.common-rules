@@ -6,7 +6,7 @@
 
 (defsystem :parser.common-rules
   :description "Provides common parsing rules that are useful in many grammars."
-  :license     "LLGPLv3" ; see COPYING file for details.
+  :license     "MIT" ; see COPYING file for details.
   :author      "Jan Moringen <jmoringe@techfak.uni-bielefeld.de>"
   :maintainer  "Jan Moringen <jmoringe@techfak.uni-bielefeld.de>"
 
@@ -31,7 +31,7 @@
 
 (defsystem :parser.common-rules-test
   :description "Tests for the parser.common-rules system."
-  :license     "LLGPLv3" ; see COPYING file for details.
+  :license     "MIT" ; see COPYING file for details.
   :author      "Jan Moringen <jmoringe@techfak.uni-bielefeld.de>"
   :maintainer  "Jan Moringen <jmoringe@techfak.uni-bielefeld.de>"
 

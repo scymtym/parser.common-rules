@@ -6,7 +6,7 @@
 
 (defsystem :parser.common-rules.operators
   :description "Provides macros for defining grammar rules for infix operators."
-  :license     "LLGPLv3" ; see COPYING file for details.
+  :license     "MIT" ; see COPYING file for details.
   :author      "Jan Moringen <jmoringe@techfak.uni-bielefeld.de>"
   :maintainer  "Jan Moringen <jmoringe@techfak.uni-bielefeld.de>"
 
@@ -28,7 +28,7 @@
 
 (defsystem :parser.common-rules.operators-test
   :description "Tests for the parser.common-rules.operators system."
-  :license     "LLGPLv3" ; see COPYING file for details.
+  :license     "MIT" ; see COPYING file for details.
   :author      "Jan Moringen <jmoringe@techfak.uni-bielefeld.de>"
   :maintainer  "Jan Moringen <jmoringe@techfak.uni-bielefeld.de>"
 
