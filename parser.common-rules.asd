@@ -27,9 +27,9 @@
 
                               (:file       "macros-tokenization"))))
 
-  :in-order-to ((test-op (test-op :parser.common-rules-test))))
+  :in-order-to ((test-op (test-op :parser.common-rules/test))))
 
-(defsystem :parser.common-rules-test
+(defsystem :parser.common-rules/test
   :description "Tests for the parser.common-rules system."
   :license     "MIT" ; see COPYING file for details.
   :author      "Jan Moringen <jmoringe@techfak.uni-bielefeld.de>"
@@ -54,5 +54,5 @@
                               (:file       "macros-tokenization")))))
 
 (defmethod perform ((operation test-op)
-                    (component (eql (find-system :parser.common-rules-test))))
+                    (component (eql (find-system :parser.common-rules/test))))
   (uiop:symbol-call '#:parser.common-rules.test '#:run-tests))

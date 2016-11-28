@@ -19,10 +19,8 @@ script:
   - ./cl
       -S '(:source-registry (:directory "'$(pwd)'") :ignore-inherited-configuration)'
       -e '(load "quicklisp/setup.lisp")'
-      -e '(ql:quickload (list :parser.common-rules
-                              :parser.common-rules-test
-                              :parser.common-rules.operators
-                              :parser.common-rules.operators-test))'
+      -e '(ql:quickload (list :parser.common-rules/test
+                              :parser.common-rules.operators/test))'
       '(or (and (parser.common-rules.test:run-tests)
                 (parser.common-rules.operators.test:run-tests))
            (uiop:quit -1))'

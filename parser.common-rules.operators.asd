@@ -24,9 +24,9 @@
 
                               (:file       "macros"))))
 
-  :in-order-to ((test-op (test-op :parser.common-rules.operators-test))))
+  :in-order-to ((test-op (test-op :parser.common-rules.operators/test))))
 
-(defsystem :parser.common-rules.operators-test
+(defsystem :parser.common-rules.operators/test
   :description "Tests for the parser.common-rules.operators system."
   :license     "MIT" ; see COPYING file for details.
   :author      "Jan Moringen <jmoringe@techfak.uni-bielefeld.de>"
@@ -37,7 +37,7 @@
 
                 (:version :parser.common-rules.operators (:read-file-form "version-string.sexp"))
 
-                (:version :parser.common-rules-test      (:read-file-form "version-string.sexp")))
+                (:version :parser.common-rules/test      (:read-file-form "version-string.sexp")))
 
   :components  ((:module     "test/operators"
                  :serial     t
@@ -46,5 +46,5 @@
                               (:file       "macros")))))
 
 (defmethod perform ((operation test-op)
-                    (component (eql (find-system :parser.common-rules.operators-test))))
+                    (component (eql (find-system :parser.common-rules.operators/test))))
   (uiop:symbol-call '#:parser.common-rules.operators.test '#:run-tests))
