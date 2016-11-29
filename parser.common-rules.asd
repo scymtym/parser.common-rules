@@ -37,9 +37,11 @@
 
   :version     (:read-file-form "version-string.sexp")
   :depends-on  (:alexandria
-                (:version :let-plus "0.2")
+                (:version :let-plus            "0.2")
 
-                (:version :fiveam   "1.3"))
+                (:version :fiveam              "1.3")
+
+                (:version :parser.common-rules (:read-file-form "version-string.sexp")))
 
   :components  ((:module     "test"
                  :serial     t
