@@ -162,10 +162,11 @@
       (is (eql n (esrap:parse 'number-literal input)))))
 
   ;; Floats.
-  (for-all ((n (gen-float)))
-    (let ((input (nsubstitute #\e #\f (prin1-to-string n))))
+  (for-all ((n (gen-float :type 'single-float)))
+    (let ((input (nsubstitute #\e #\f (with-standard-io-syntax
+                                        (prin1-to-string n)))))
       (is (eql n (esrap:parse 'number-literal input))))
-    (let ((input (format nil "~F" n)))
+    (let ((input (with-standard-io-syntax (format nil "~F" n))))
       (is (eql n (esrap:parse 'number-literal input))))))
 
 ;;; String literals
