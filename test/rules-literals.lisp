@@ -1,6 +1,6 @@
 ;;;; rules-literals.lisp --- Tests for literal rules.
 ;;;;
-;;;; Copyright (C) 2016 Jan Moringen
+;;;; Copyright (C) 2016, 2017 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -172,7 +172,7 @@
 
 (defun make-expected-escape-sequence-string ()
   (format nil "~{~C~}" '(#\Bel #\Backspace #\Page #\Newline #\Return #\Tab
-                         #\Line_Tabulation)))
+                         #\Vt)))
 
 (define-rule-test string-literal/single-quotes
   ("'bla\\020 \\' \" \\\\ '" (format nil "bla~C ' \" \\ " #\Dle))
