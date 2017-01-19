@@ -1,6 +1,6 @@
 ;;;; package.lisp --- Package definition for tests of the parser.common-rules system.
 ;;;;
-;;;; Copyright (C) 2013, 2016 Jan Moringen
+;;;; Copyright (C) 2013, 2016, 2017 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -15,6 +15,7 @@
    #:parser.common-rules)
 
   (:import-from #:parser.common-rules
+   #:integer-literal/binary/no-sign
    #:integer-literal/octal/no-sign
    #:integer-literal/decimal/no-sign
    #:integer-literal/hexadecimal/no-sign)

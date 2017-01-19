@@ -1,6 +1,6 @@
 ;;;; package.lisp --- Package definition for parser.common-rules system.
 ;;;;
-;;;; Copyright (C) 2012, 2013, 2015, 2016 Jan Moringen
+;;;; Copyright (C) 2012-2017 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -39,6 +39,7 @@
    #:boolean-literal/capital-case
    #:boolean-literal/extended
 
+   #:integer-literal/binary
    #:integer-literal/octal       #:integer-literal/octal/prefix
    #:integer-literal/decimal
    #:integer-literal/hexadecimal #:integer-literal/hexadecimal/prefix

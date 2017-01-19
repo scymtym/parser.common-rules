@@ -42,6 +42,34 @@
 
 ;;; Number literals
 
+(define-rule-test integer-literal/binary/no-sign
+  ;; Some matching inputs.
+  ("0"  0)
+  ("00" 0)
+  ("1"  1)
+  ("01" 1)
+  ("10" 2)
+  ("11" 3)
+
+  ;; Some non-matching inputs.
+  (""   nil)
+  ("2"  nil)
+  ("-1" nil))
+
+(define-rule-test integer-literal/binary
+  ;; Some matching inputs.
+  ("0"   0) ("-0"  0)
+  ("00"  0) ("-00" 0)
+  ("1"   1) ("-1"  -1)
+  ("01"  1) ("-01" -1)
+  ("10"  2) ("-10" -2)
+  ("11"  3) ("-11" -3)
+
+  ;; Some non-matching inputs.
+  (""    nil)
+  ("2"   nil)
+  ("--1" nil))
+
 (define-rule-test integer-literal/octal/no-sign
   ;; Some matching inputs.
   ("0"   0)

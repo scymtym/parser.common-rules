@@ -1,6 +1,6 @@
 ;;;; rules-literals.lisp --- Rules for parsing common kinds of literals.
 ;;;;
-;;;; Copyright (C) 2013, 2014, 2015, 2016 Jan Moringen
+;;;; Copyright (C) 2013, 2014, 2015, 2016, 2017 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -100,6 +100,7 @@
                       (declare (ignore prefix))
                       (* (or sign 1) magnitude)))))))))
 
+  (define-integer-literal-rules #:binary       2)
   (define-integer-literal-rules #:octal        8 :prefix "0o")
   (define-integer-literal-rules #:decimal     10)
   (define-integer-literal-rules #:hexadecimal 16 :prefix "0x"))
