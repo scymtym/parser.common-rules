@@ -1,6 +1,6 @@
 ;;;; rules-comments.lisp --- Rules for different kinds of comments.
 ;;;;
-;;;; Copyright (C) 2013, 2014, 2015, 2016 Jan Moringen
+;;;; Copyright (C) 2013, 2014, 2015, 2016, 2017 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -24,7 +24,7 @@
 (defrule c-style-comment/rest-of-line/trimmed
     c-style-comment/rest-of-line
   (:lambda (content)
-    (string-trim '(#\/) content)))
+    (string-left-trim '(#\/) content)))
 
 (defrule c-style-comment/delimited
     (and "/*" (* (not "*/")) "*/")

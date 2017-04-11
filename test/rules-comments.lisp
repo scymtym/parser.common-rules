@@ -1,6 +1,6 @@
 ;;;; rules-comments.lisp --- Tests for comment-related rules.
 ;;;;
-;;;; Copyright (C) 2016 Jan Moringen
+;;;; Copyright (C) 2016, 2017 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -38,7 +38,9 @@
   ("/// foo"    " foo")
   ("/// foo~%"  " foo"  7)
   ("/// foo "   " foo ")
-  ("/// foo ~%" " foo " 8))
+  ("/// foo ~%" " foo " 8)
+
+  ("// //"      " //"))
 
 (define-rule-test c-style-comment/delimited
   ;; Some matching inputs.
