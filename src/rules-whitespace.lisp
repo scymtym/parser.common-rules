@@ -1,6 +1,6 @@
 ;;;; rules-whitespace.lisp --- Common whitespace-related rules.
 ;;;;
-;;;; Copyright (C) 2013, 2014, 2015, 2016 Jan Moringen
+;;;; Copyright (C) 2013, 2014, 2015, 2016, 2017 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -21,7 +21,8 @@
   (:constant nil))
 
 (defrule whitespace/not-newline?
-    (? whitespace/not-newline))
+    (? whitespace/not-newline)
+  (:error-report nil))
 
 (defrule whitespace
     (or #\Space #\Tab #\Newline #\Page)
@@ -29,7 +30,7 @@
 
 (defrule whitespace?
     (? whitespace)
-  #+esrap.error-report-option (:error-report nil))
+  (:error-report nil))
 
 (defrule whitespace+
     (and whitespace whitespace*)
@@ -37,5 +38,5 @@
 
 (defrule whitespace*
     (* whitespace)
-  #+esrap.error-report-option (:error-report nil)
+  (:error-report nil)
   (:constant nil))

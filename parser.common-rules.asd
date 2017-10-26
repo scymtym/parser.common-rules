@@ -1,6 +1,6 @@
 ;;;; parser.common-rules.asd --- System definition for the parser.common-rules system.
 ;;;;
-;;;; Copyright (C) 2012, 2013, 2016 Jan Moringen
+;;;; Copyright (C) 2012-2017 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -14,7 +14,7 @@
   :depends-on  (:alexandria
                 :split-sequence ; for rules-comments.lisp
                 (:version :let-plus "0.2")
-                (:version :esrap    "0.14"))
+                (:version :esrap    "0.16"))
 
   :components  ((:module     "src"
                  :serial     t
