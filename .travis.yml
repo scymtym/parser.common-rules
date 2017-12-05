@@ -6,21 +6,21 @@ env: PREFIX="$(pwd)/sbcl"
      SBCL_OPTIONS="--dynamic-space-size 4GB --noinform --no-userinit"
 
 install:
-  - curl -L sbcl.tar.bz2 "${SBCL_DOWNLOAD_URL}" | tar -xj
+  - curl -L "${SBCL_DOWNLOAD_URL}" | tar -xj
   - ( cd sbcl-* && INSTALL_ROOT="${PREFIX}" sh install.sh )
 
   - curl -o cl "${CL_LAUNCH_DOWNLOAD_URL}"
   - chmod +x cl
 
   - curl -o quicklisp.lisp "${QUICKLISP_DOWNLOAD_URL}"
-  - ./cl -L quicklisp.lisp '(quicklisp-quickstart:install :path "quicklisp/")'
+  - ./cl -L quicklisp.lisp '(quicklisp-quickstart:install)'
 
 script:
   - ./cl
       -S '(:source-registry (:directory "'$(pwd)'") :ignore-inherited-configuration)'
-      -e '(load "quicklisp/setup.lisp")'
-      -e '(ql:quickload (list :parser.common-rules/test
-                              :parser.common-rules.operators/test))'
+      -Q
+      -s parser.common-rules/test
+      -s parser.common-rules.operators/test
       '(or (and (parser.common-rules.test:run-tests)
                 (parser.common-rules.operators.test:run-tests))
            (uiop:quit -1))'
