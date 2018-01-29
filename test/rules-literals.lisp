@@ -1,6 +1,6 @@
 ;;;; rules-literals.lisp --- Tests for literal rules.
 ;;;;
-;;;; Copyright (C) 2016, 2017 Jan Moringen
+;;;; Copyright (C) 2016, 2017, 2018 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -132,6 +132,26 @@
      ("-0.001" -1/1000)
      ("0.001"  1/1000))))
 
+(macrolet
+    ((define-float-rule-test (rule-name negative-name positive-name type-name)
+       `(define-rule-test ,rule-name
+          ;; Out-of-range values
+          (((format nil "~S.0" (1- (floor ,negative-name))))   nil)
+          (((format nil "~S.0" (1+ (ceiling ,positive-name)))) nil)
+          ;; Corner cases and a few ordinary values.
+          (((format nil "~S.0" (ceiling ,positive-name)))
+           (coerce (ceiling ,positive-name) ',type-name))
+          ("-1.0"                                              ,(coerce -1 type-name))
+          ("0.0"                                               ,(coerce  0 type-name))
+          ("1.0"                                               ,(coerce  1 type-name))
+          (((format nil "~S.0" (floor ,positive-name)))
+           (coerce (floor ,positive-name) ',type-name)))))
+
+  (define-float-rule-test single-float-literal
+      most-negative-single-float most-positive-single-float single-float)
+  (define-float-rule-test double-float-literal
+      most-negative-double-float most-positive-double-float double-float))
+
 (define-rule-test number-literal
   ;; Some matching inputs.
   ("0"      0)
@@ -155,19 +175,19 @@
   ("+0o7"   7)     ("+ 0o7"  7)
   ("-0o7"  -7)     ("- 0o7" -7)
 
-  (".1"      .1f0)
-  ("+.1"     .1f0) ("+ .1"    .1f0)
-  ("-.1"   -.1f0)  ("- .1"  -.1f0)
-  ("1.0"    1.0f0)
-  ("+1.0"   1.0f0) ("+ 1.0"  1.0f0)
-  ("-1.0"  -1.0f0) ("- 1.0" -1.0f0)
+  (".1"      .1d0)
+  ("+.1"     .1d0) ("+ .1"    .1d0)
+  ("-.1"   -.1d0)  ("- .1"  -.1d0)
+  ("1.0"    1.0d0)
+  ("+1.0"   1.0d0) ("+ 1.0"  1.0d0)
+  ("-1.0"  -1.0d0) ("- 1.0" -1.0d0)
 
   ;; Some non-matching inputs.
   ("++1"   nil)
   ("--1"   nil)
   ("+-1"   nil)
-  ("1.-1"  1.0f0 2)
-  ("1.0x1" 1.0f0 3)
+  ("1.-1"  1.0d0 2)
+  ("1.0x1" 1.0d0 3)
   ("0x1.1" 1     3))
 
 (test rule.number-literal.random
@@ -190,8 +210,8 @@
       (is (eql n (esrap:parse 'number-literal input)))))
 
   ;; Floats.
-  (for-all ((n (gen-float :type 'single-float)))
-    (let ((input (nsubstitute #\e #\f (with-standard-io-syntax
+  (for-all ((n (gen-float :type 'double-float)))
+    (let ((input (nsubstitute #\e #\d (with-standard-io-syntax
                                         (prin1-to-string n)))))
       (is (eql n (esrap:parse 'number-literal input))))
     (let ((input (with-standard-io-syntax (format nil "~F" n))))

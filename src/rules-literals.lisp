@@ -1,6 +1,6 @@
 ;;;; rules-literals.lisp --- Rules for parsing common kinds of literals.
 ;;;;
-;;;; Copyright (C) 2013, 2014, 2015, 2016, 2017 Jan Moringen
+;;;; Copyright (C) 2013-2018 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -131,10 +131,38 @@
     (declare (ignore nosign))
     (* (or sign 1) (+ (or digits 0) (or decimals 0)) (or scientific 1))))
 
+(macrolet ((define-float-literal-rules (precision)
+             (let* ((type               (symbolicate precision '#:-float))
+                    (predicate-name     (symbolicate '#:in- type '#:-range))
+                    (negative-name      (symbolicate '#:most-negative- type))
+                    (positive-name      (symbolicate '#:most-positive- type))
+                    (rule-name          (symbolicate precision '#:-float-literal))
+                    (rational-rule-name (symbolicate rule-name '#:/rational)))
+               `(progn
+                  (defun ,predicate-name (number)
+                    (if (<= ,negative-name number ,positive-name)
+                        number
+                        (values
+                         nil
+                         (format nil "~@<The value ~A is not within ~
+                                      the bounds [~F, ~F] of the ~A ~
+                                      type.~@:>"
+                                 number ,negative-name ,positive-name
+                                 ',type))))
+
+                  (defrule ,rational-rule-name
+                      (,predicate-name float-literal/rational))
+
+                  (defrule ,rule-name
+                      ,rational-rule-name
+                    (:lambda (rational)
+                      (coerce rational ',type)))))))
+
+  (define-float-literal-rules single)
+  (define-float-literal-rules double))
+
 (defrule float-literal
-    float-literal/rational
-  (:lambda (rational)
-    (float rational 1.0f0)))
+    double-float-literal)
 
 (defrule number-literal
     (or (and integer-literal/octal/prefix       (and))

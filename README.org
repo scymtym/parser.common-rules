@@ -526,13 +526,17 @@
    #+END_EXAMPLE
 
    #+BEGIN_EXAMPLE
-     float-literal[/rational]
+     {,single-,double-}float-literal[/rational]
 
      Consumes a floating point literal in fixed or scientific notation and
-     produces its value.
+     produces its value as rational, single-float or double-float value.
 
-     The /rational variant returns the parsed number as a rational value
-     while the plain variant coerces the parsed number into a single-float.
+     The /rational variants return the parsed number as a rational value
+     while the plain variants coerce the parsed number into the respective
+     float sub-type.
+
+     the single- and double- variants verify that the parsed number is
+     within the value range of the respective type.
    #+END_EXAMPLE
 
    #+BEGIN_EXAMPLE
