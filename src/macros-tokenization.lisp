@@ -1,6 +1,6 @@
 ;;;; macros-tokenization.lisp --- Macros that aid with common tokenization issues.
 ;;;;
-;;;; Copyright (C) 2012, 2013, 2015, 2016 Jan Moringen
+;;;; Copyright (C) 2012-2018 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -44,10 +44,12 @@
    rule. Defaults to `esrap:defrule'."
   (let+ (((name
            &key
-           (skippable-expression  (skippable-rule-for-name 'skippable  name))
            (s?                    t)
-           (skippable?-expression (skippable-rule-for-name 'skippable? name))
+           (skippable-expression  (when s?
+                                    (skippable-rule-for-name 'skippable  name)))
            (?s?                   t)
+           (skippable?-expression (when ?s?
+                                    (skippable-rule-for-name 'skippable? name)))
            (definer               'defrule))
           (ensure-list name-and-options))
          (name/s  (format-symbol *package* "~A/S" name))
