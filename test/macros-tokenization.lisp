@@ -1,14 +1,13 @@
 ;;;; macros-tokenization.lisp --- Tests for tokenization macros.
 ;;;;
-;;;; Copyright (C) 2013, 2016 Jan Moringen
+;;;; Copyright (C) 2013-2018 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
 (cl:in-package #:parser.common-rules.test)
 
-(def-suite :parser.common-rules.macros.tokenization
-    :in :parser.common-rules)
-(in-suite :parser.common-rules.macros.tokenization)
+(def-suite* :parser.common-rules.macros.tokenization
+  :in :parser.common-rules)
 
 (test macro.defrule/s.smoke
   ;; Mock "skippable" support rules.

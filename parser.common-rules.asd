@@ -39,7 +39,7 @@
   :depends-on  ("alexandria"
                 (:version "let-plus"            "0.2")
 
-                (:version "fiveam"              "1.3")
+                (:version "fiveam"              "1.4")
 
                 (:version "parser.common-rules" (:read-file-form "version-string.sexp")))
 

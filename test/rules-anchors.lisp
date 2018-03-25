@@ -1,14 +1,13 @@
 ;;;; rules-anchors.lisp --- Tests for anchor rules.
 ;;;;
-;;;; Copyright (C) 2016 Jan Moringen
+;;;; Copyright (C) 2016, 2018 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
 (cl:in-package #:parser.common-rules.test)
 
-(def-suite :parser.common-rules.rules.anchor
-    :in :parser.common-rules)
-(in-suite :parser.common-rules.rules.anchor)
+(def-suite* :parser.common-rules.rules.anchor
+  :in :parser.common-rules)
 
 (define-rule-test <beginning-of-input>
   (""             :beginning-of-input)

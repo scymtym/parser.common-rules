@@ -1,14 +1,13 @@
 ;;;; rules-comments.lisp --- Tests for comment-related rules.
 ;;;;
-;;;; Copyright (C) 2016, 2017 Jan Moringen
+;;;; Copyright (C) 2016, 2017, 2018 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
 (cl:in-package #:parser.common-rules.test)
 
-(def-suite :parser.common-rules.rules.comments
-    :in :parser.common-rules)
-(in-suite :parser.common-rules.rules.comments)
+(def-suite* :parser.common-rules.rules.comment
+  :in :parser.common-rules)
 
 ;;; C-style comments
 

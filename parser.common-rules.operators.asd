@@ -33,7 +33,7 @@
   :maintainer  "Jan Moringen <jmoringe@techfak.uni-bielefeld.de>"
 
   :version     (:read-file-form "version-string.sexp")
-  :depends-on  ((:version "fiveam"                        "1.3")
+  :depends-on  ((:version "fiveam"                        "1.4")
 
                 (:version "parser.common-rules.operators" (:read-file-form "version-string.sexp"))
 

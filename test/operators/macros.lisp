@@ -1,14 +1,13 @@
 ;;;; macros-operators.lisp --- Tests for the operator grammar macros.
 ;;;;
-;;;; Copyright (C) 2013, 2016 Jan Moringen
+;;;; Copyright (C) 2013-2018 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
 (cl:in-package #:parser.common-rules.operators.test)
 
-(def-suite :parser.common-rules.operators.macros
-    :in :parser.common-rules.operators)
-(in-suite :parser.common-rules.operators.macros)
+(def-suite* :parser.common-rules.operators.macros
+  :in :parser.common-rules.operators)
 
 (test define-unary-operator-rule.prefix
   "Test the `define-unary-operator-rule' macro for prefix direction."
