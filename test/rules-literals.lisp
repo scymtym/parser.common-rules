@@ -211,7 +211,8 @@
   ;; Floats.
   (for-all ((n (gen-float :type 'double-float)))
     (let ((input (nsubstitute #\e #\d (with-standard-io-syntax
-                                        (prin1-to-string n)))))
+                                        (string-downcase
+                                         (prin1-to-string n))))))
       (is (eql n (esrap:parse 'number-literal input))))
     (let ((input (with-standard-io-syntax (format nil "~F" n))))
       (is (eql n (esrap:parse 'number-literal input))))))
