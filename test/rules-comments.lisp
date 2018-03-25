@@ -6,7 +6,7 @@
 
 (cl:in-package #:parser.common-rules.test)
 
-(def-suite* :parser.common-rules.rules.comment
+(def-suite* :parser.common-rules.comment-rules
   :in :parser.common-rules)
 
 ;;; C-style comments

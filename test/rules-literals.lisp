@@ -6,7 +6,7 @@
 
 (cl:in-package #:parser.common-rules.test)
 
-(def-suite* :parser.common-rules.rules.literal
+(def-suite* :parser.common-rules.literal-rules
   :in :parser.common-rules)
 
 ;;; Boolean literals

@@ -6,7 +6,7 @@
 
 (cl:in-package #:parser.common-rules.test)
 
-(def-suite* :parser.common-rules.rules.anchor
+(def-suite* :parser.common-rules.anchor-rules
   :in :parser.common-rules)
 
 (define-rule-test <beginning-of-input>

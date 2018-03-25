@@ -6,7 +6,7 @@
 
 (cl:in-package #:parser.common-rules.test)
 
-(def-suite* :parser.common-rules.macros.tokenization
+(def-suite* :parser.common-rules.tokenization-macros
   :in :parser.common-rules)
 
 (test macro.defrule/s.smoke
