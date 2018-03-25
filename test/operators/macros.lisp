@@ -35,6 +35,25 @@
       ("1-"  #\1 1)
       ("1 -" #\1 1))))
 
+(test define-unary-operator-rule.no-skippable
+  "Test the `define-unary-operator-rule' macro without a skippable
+   expression."
+
+  (define-unary-operator-rule minus/no-skippable
+    #\- (digit-char-p character)
+    :fixity                :prefix
+    :skippable?-expression nil)
+
+  (architecture.builder-protocol:with-builder ('list)
+    (parses-are (minus/no-skippable)
+      ;; Some matching inputs.
+      ("-1"  '(:unary-operator
+               (:operand ((#\1)))
+               :operator "-" :bounds (0 . 2))
+             nil)
+      ;; Some non-matching inputs.
+      ("- 1" nil))))
+
 (test define-unary-operator-rule.postfix
   "Test the `define-unary-operator-rule' macro for postfix direction."
 
@@ -103,6 +122,26 @@
       ("+1"    nil)
       ("1++2"  #\1 1 t))))
 
+(test define-binary-operator-rule.smoke
+  "Test the `define-binary-operator-rule' macro without a skippable
+   expression."
+
+  (define-binary-operator-rule plus/no-skippable
+    #\+ (digit-char-p character)
+    :skippable?-expression nil)
+
+  (architecture.builder-protocol:with-builder ('list)
+    (parses-are (plus/no-skippable)
+      ;; Some matching inputs.
+      ("1"     #\1)
+      ("1+2"   '(:binary-operator
+                 (:operand ((#\1) (#\2)))
+                 :operator "+" :bounds (0 . 3)))
+      ;; Some non-matching inputs.
+      ("1 +2"  #\1 1)
+      ("1+ 2"  #\1 1)
+      ("1 + 2" #\1 1))))
+
 (test define-binary-operator-rule.node-kind
   "Test specifying the node kind in `define-binary-operator-rule'."
 
@@ -149,6 +188,26 @@
       ("1?2?3"     #\1 1)
       ("1??2:3"    #\1 1)
       (" 1?2:3"    nil))))
+
+(test define-ternary-operator-rule.no-skippable
+  "Test the `define-ternary-operator-rule' macro without a skippable
+   expression."
+
+  (define-ternary-operator-rule if-then-else/no-skippable
+    #\? #\: (digit-char-p character)
+    :skippable?-expression nil)
+
+  (architecture.builder-protocol:with-builder ('list)
+    (parses-are (if-then-else/no-skippable)
+      ;; Some matching inputs.
+      ("1?2:3"  '(:ternary-operator
+                  (:operand ((#\1) (#\2) (#\3)))
+                  :operator1 "?" :operator2 ":" :bounds (0 . 5)))
+      ;; Some non-matching inputs.
+      ("1 ?2:3" #\1 1)
+      ("1? 2:3" #\1 1)
+      ("1?2 :3" #\1 1)
+      ("1?2: 3" #\1 1))))
 
 (test define-ternary-operator-rule.node-kind
   "Test specifying the node kind in `define-ternary-operator-rule'."

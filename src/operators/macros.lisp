@@ -1,6 +1,6 @@
 ;;;; macros.lisp --- Macros for operators.
 ;;;;
-;;;; Copyright (C) 2012, 2013, 2014, 2016 Jan Moringen
+;;;; Copyright (C) 2012-2018 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -53,10 +53,12 @@
                                        name next skippable?-expression)
   (let+ (((&flet operator-expression ()
             (ecase fixity
-              (:prefix  `(and (and ,operator-expression ,skippable?-expression)
+              (:prefix  `(and (and ,operator-expression
+                                   ,(or skippable?-expression '(and)))
                               ,name))
               (:postfix `(and ,name
-                              (and ,skippable?-expression ,operator-expression))))))
+                              (and ,(or skippable?-expression '(and))
+                                   ,operator-expression))))))
          ((&flet fallthrough-expression ()
             (ecase fixity
               (:prefix  `(and (and (and) (and)) ,next))
@@ -111,9 +113,9 @@
                                         name next skippable?-expression)
   (let+ (((&flet operator-expression ()
             (let ((operator-expression
-                   `(and ,skippable?-expression
-                         ,operator-expression
-                         ,skippable?-expression)))
+                    `(and ,(or skippable?-expression '(and))
+                          ,operator-expression
+                          ,(or skippable?-expression '(and)))))
               (ecase associativity
                 (:none        `(and ,next ,operator-expression ,next))
                 (:left        `(and ,name ,operator-expression ,next))
@@ -178,9 +180,9 @@
     (operator1-expression operator2-expression
      name next skippable?-expression)
   (let+ (((&flet operator-symbol (operator-expression)
-            `(and ,skippable?-expression
+            `(and ,(or skippable?-expression '(and))
                   ,operator-expression
-                  ,skippable?-expression)))
+                  ,(or skippable?-expression '(and)))))
          ((&flet operator-expression ()
             `(and ,name
                   ,(operator-symbol operator1-expression)
@@ -222,12 +224,13 @@
 
 ;;; Operator precedence
 
-(defmacro define-operator-rules ((&key
-                                  skippable?-expression
-                                  (unary-node-kind   :unary-operator)
-                                  (binary-node-kind  :binary-operator)
-                                  (ternary-node-kind :ternary-operator))
-                                 &body clauses)
+(defmacro define-operator-rules
+    ((&key
+      (skippable?-expression nil skippable?-expression-supplied?)
+      (unary-node-kind       :unary-operator)
+      (binary-node-kind      :binary-operator)
+      (ternary-node-kind     :ternary-operator))
+     &body clauses)
   "Define rules for parsing infix operators according to CLAUSES.
 
    The order of clauses in CLAUSES determines the precedence of
@@ -328,7 +331,7 @@
                    ((&flet make-rule (definer expressions node-kind args)
                       `(,definer ,name
                           ,@expressions
-                          ,@(when skippable?-expression
+                          ,@(when skippable?-expression-supplied?
                               `(:skippable?-expression ,skippable?-expression))
                           ,@(when node-kind
                               `(:node-kind ,node-kind))
