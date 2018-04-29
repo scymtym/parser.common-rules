@@ -276,7 +276,7 @@
    #+END_SRC
 
    Parse results are constructed using the
-   [[https://github.com/scymtymarchitecture.builder-protocol][architecture.builder-protocol system]]. The following parsing code
+   [[https://github.com/scymtym/architecture.builder-protocol][architecture.builder-protocol system]]. The following parsing code
    and resulting parse tree demonstrate the precedence and
    associativity properties:
 
