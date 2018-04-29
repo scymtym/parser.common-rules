@@ -23,9 +23,13 @@
   + Tokenization :: Macros for handling tokenization (which is usually
        not done in a separate lexing step in esrap-based parsers).
 
-  + Infix Operators :: Macros for defining families of unary and
-       binary operators with given precedence relations and
+  + Infix Operators :: Macros for defining families of unary, binary
+       and ternary operators with given precedence relations and
        associativity.
+
+       This functionality is provided as a separate system since it
+       introduces a dependency on the [[https://github.com/scymtym/architecture.builder-protocol][architecture.builder-protocol
+       system]].
 
   #+ATTR_HTML: :alt "build status image" :title Build Status :align right
   [[https://travis-ci.org/scymtym/parser.common-rules][https://travis-ci.org/scymtym/parser.common-rules.svg]]
