@@ -517,13 +517,14 @@
    #+END_EXAMPLE
 
    #+BEGIN_EXAMPLE
-     integer-literal/{octal[/prefix],decimal,hexdecimal[/prefix]}
+     integer-literal/{binary,octal,decimal,hexdecimal}{,/prefix}
 
      Consumes an integer literal and produces its value.
 
      Variants:
 
                     /prefix         plain
+       binary                       {+,-,}[01]+
        octal        {+,-,}0o[0-7]+  {+,-,}[0-7]+
        decimal                      {+,-,}[0-9]+
        hexadecimal  {+,-,}0x[0-f]+  {+,-,}[0-f]+
