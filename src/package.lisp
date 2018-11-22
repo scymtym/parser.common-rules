@@ -40,9 +40,19 @@
    #:boolean-literal/extended
 
    #:integer-literal/binary
-   #:integer-literal/octal       #:integer-literal/octal/prefix
+   #:integer-literal/binary/no-sign
+
+   #:integer-literal/octal
+   #:integer-literal/octal/prefix
+   #:integer-literal/octal/no-sign
+
    #:integer-literal/decimal
-   #:integer-literal/hexadecimal #:integer-literal/hexadecimal/prefix
+   #:integer-literal/decimal/no-sign
+
+   #:integer-literal/hexadecimal
+   #:integer-literal/hexadecimal/prefix
+   #:integer-literal/hexadecimal/no-sign
+
    #:integer-literal
 
    #:single-float-literal/rational #:single-float-literal
