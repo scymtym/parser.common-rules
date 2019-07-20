@@ -1,6 +1,6 @@
 ;;;; rules-literals.lisp --- Rules for parsing common kinds of literals.
 ;;;;
-;;;; Copyright (C) 2013-2018 Jan Moringen
+;;;; Copyright (C) 2013-2019 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -85,8 +85,8 @@
               (:text t))
 
             (defrule ,no-sign-rule-name
-                (and (! sign) #',parse-name)
-              (:function second))
+                (and (! sign) (& (,predicate-name character)) #',parse-name)
+              (:function third))
 
             (defrule ,main-rule-name
                 (and (? sign/?s) ,no-sign-rule-name)

@@ -1,6 +1,6 @@
 ;;;; rules-literals.lisp --- Tests for literal rules.
 ;;;;
-;;;; Copyright (C) 2016, 2017, 2018 Jan Moringen
+;;;; Copyright (C) 2016, 2017, 2018, 2019 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -53,7 +53,8 @@
   ;; Some non-matching inputs.
   (""   nil)
   ("2"  nil)
-  ("-1" nil))
+  ("-1" nil)
+  (" 0" nil))
 
 (define-rule-test integer-literal/binary
   ;; Some matching inputs.
@@ -67,7 +68,8 @@
   ;; Some non-matching inputs.
   (""    nil)
   ("2"   nil)
-  ("--1" nil))
+  ("--1" nil)
+  (" 1"  nil))
 
 (define-rule-test integer-literal/octal/no-sign
   ;; Some matching inputs.
@@ -79,7 +81,8 @@
 
   ;; Some non-matching inputs.
   ("8"   nil)
-  ("-1"  nil))
+  ("-1"  nil)
+  (" 1"  nil))
 
 (define-rule-test integer-literal/octal
   ;; Some matching inputs.
@@ -91,7 +94,32 @@
 
   ;; Some non-matching inputs.
   ("8"   nil) ("-8"   nil)
-  ("--1" nil))
+  ("--1" nil) (" 1"   nil))
+
+(define-rule-test integer-literal/decimal/no-sign
+  ;; Some matching inputs.
+  ("0"   0)
+  ("00"  0)
+  ("1"   1)
+  ("9"   9)
+  ("10"  10)
+
+  ;; Some non-matching inputs.
+  ("a"   nil)
+  ("-1"  nil)
+  (" 1"  nil))
+
+(define-rule-test integer-literal/decimal
+  ;; Some matching inputs.
+  ("0"   0)   ("-0"   0)
+  ("00"  0)   ("-00"  0)
+  ("1"   1)   ("-1"   -1)
+  ("9"   9)   ("-9"   -9)
+  ("10"  10)  ("-10"  -10)
+
+  ;; Some non-matching inputs.
+  ("a"   nil) ("-a"   nil)
+  ("--1" nil) (" 1"   nil))
 
 (defvar *scientific*
   '((nil  .    1)
