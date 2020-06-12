@@ -1,6 +1,6 @@
 ;;;; rules-literals.lisp --- Rules for parsing common kinds of literals.
 ;;;;
-;;;; Copyright (C) 2013-2019 Jan Moringen
+;;;; Copyright (C) 2013-2020 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -124,11 +124,10 @@
     (expt 10 power)))
 
 (defrule float-literal/rational
-    (and (? sign/?s) (! sign)
-         (or (and (? integer-literal/decimal) float-decimals     (? float-scientific))
-             (and integer-literal/decimal     (? float-decimals) float-scientific)))
-  (:destructure (sign nosign (digits decimals scientific))
-    (declare (ignore nosign))
+    (and (? sign/?s)
+         (or (and (? integer-literal/decimal/no-sign) float-decimals     (? float-scientific))
+             (and integer-literal/decimal/no-sign     (? float-decimals) float-scientific)))
+  (:destructure (sign (digits decimals scientific))
     (* (or sign 1) (+ (or digits 0) (or decimals 0)) (or scientific 1))))
 
 (macrolet ((define-float-literal-rules (precision)
