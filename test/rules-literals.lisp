@@ -132,32 +132,55 @@
   "Smoke test for the `float-literal' rule."
 
   (mapc
-   (lambda+ ((input expected))
-     (let+ (((&flet do-it (&optional (input input))
-               (esrap:parse 'float-literal/rational input))))
-       (case expected
-         (error
-          (signals esrap:esrap-parse-error (do-it)))
-         (t
-          (loop :for (scientific . factor) :in *scientific* :do
-             (let ((input    (if scientific
-                                 (concatenate 'string input scientific)
-                                 input))
-                   (expected (* factor expected)))
-               (is (equal expected (do-it input)))))))))
+   (lambda+ ((input expected-plain expected-scientific))
+     (let+ (((&labels do-it (input)
+               (esrap:parse 'float-literal/rational input)))
+            ((&labels do-case (input expected)
+               (case expected
+                 (error
+                  (signals (esrap:esrap-parse-error
+                            "~@<For input ~S, expected to signal ~S,
+                             but did not.~@:>"
+                            input expected)
+                    (do-it input)))
+                 (t
+                  (is (equal expected (do-it input))))))))
+       (mapc
+        (lambda+ ((scientific . factor))
+          (if scientific
+              (let ((input    (concatenate 'string input scientific))
+                    (expected (case expected-scientific
+                                (error 'error)
+                                (t     (* factor expected-scientific)))))
+                (do-case input expected))
+              (do-case input expected-plain)))
+        *scientific*)))
 
-   `(("-1."    -1)
-     ("+1."    1)
-     ("1."     1)
-     ("+.5"    1/2)
-     ("-.5"    -1/2)
-     (".5"     1/2)
-     ("+0.5"   1/2)
-     ("-0.5"   -1/2)
-     ("0.5"    1/2)
-     ("+0.001" 1/1000)
-     ("-0.001" -1/1000)
-     ("0.001"  1/1000))))
+   `(;; Some matching inputs
+     ("-1."    -1      -1)
+     ("+1."     1       1)
+     ("1."      1       1)
+     ("+.5"     1/2     1/2)
+     ("-.5"    -1/2    -1/2)
+     (".5"      1/2     1/2)
+     ("+0.5"    1/2     1/2)
+     ("-0.5"   -1/2    -1/2)
+     ("0.5"     1/2     1/2)
+     ("+0.001"  1/1000  1/1000)
+     ("-0.001" -1/1000 -1/1000)
+     ("0.001"   1/1000  1/1000)
+
+     ;; Some non-matching inputs.
+     (""       error   error)
+     ("-"      error   error)
+     ("+"      error   error)
+     ("."      error   error)
+     (".e5"    error   error)
+     ("--1"    error   error)
+
+     ;; Only valid is exponent marker is present.
+     ("10"     error    10)
+     ("-10"    error   -10))))
 
 (macrolet
     ((define-float-rule-test (rule-name negative-name positive-name type-name)

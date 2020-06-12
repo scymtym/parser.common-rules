@@ -111,11 +111,9 @@
         integer-literal/decimal))
 
 (defrule float-decimals
-    (and #\. (? integer-digits/decimal))
-  (:function second)
+    integer-digits/decimal
   (:lambda (digits)
-    (when digits
-      (/ (parse-integer digits) (expt 10 (length digits))))))
+    (/ (parse-integer digits) (expt 10 (length digits)))))
 
 (defrule float-scientific
     (and (~ #\e) integer-literal/decimal)
@@ -123,11 +121,15 @@
   (:lambda (power)
     (expt 10 power)))
 
+;;; WARNING: these are not Common Lisp float literals because "1."
+;;; READs as an integer in Common Lisp but not here.
 (defrule float-literal/rational
     (and (? sign/?s)
-         (or (and (? integer-literal/decimal/no-sign) float-decimals     (? float-scientific))
-             (and integer-literal/decimal/no-sign     (? float-decimals) float-scientific)))
-  (:destructure (sign (digits decimals scientific))
+         (or (and (? integer-literal/decimal/no-sign) (and #\. float-decimals)     (? float-scientific))
+             (and integer-literal/decimal/no-sign     (and #\. (? float-decimals)) (? float-scientific))
+             (and integer-literal/decimal/no-sign     (and)                        float-scientific)))
+  (:destructure (sign (digits (&optional dot decimals) scientific))
+    (declare (ignore dot))
     (* (or sign 1) (+ (or digits 0) (or decimals 0)) (or scientific 1))))
 
 (macrolet ((define-float-literal-rules (precision)
