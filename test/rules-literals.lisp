@@ -1,6 +1,6 @@
 ;;;; rules-literals.lisp --- Tests for literal rules.
 ;;;;
-;;;; Copyright (C) 2016, 2017, 2018, 2019 Jan Moringen
+;;;; Copyright (C) 2016, 2017, 2018, 2019, 2020 Jan Moringen
 ;;;;
 ;;;; Author: Jan Moringen <jmoringe@techfak.uni-bielefeld.de>
 
@@ -217,10 +217,9 @@
   ("1.0x1" 1.0d0 3)
   ("0x1.1" 1     3))
 
-(test rule.number-literal.random
-  "Random testing of the `number-literal' rule."
+(test rule.number-literal.random-integer
+  "Random testing with integers of the `number-literal' rule."
 
-  ;; Integers in different bases.
   (for-all ((n         (gen-integer))
             (space     (gen-one-element nil " "))
             (plus-sign (gen-one-element nil #\+))
@@ -234,9 +233,11 @@
                            (8  "0o")
                            (16 "0x"))
                          base (abs n))))
-      (is (eql n (esrap:parse 'number-literal input)))))
+      (is (eql n (esrap:parse 'number-literal input))))))
 
-  ;; Floats.
+(test rule.number-literal.random-floats
+  "Random testing with floats of the `number-literal' rule."
+
   (for-all ((n (gen-float :type 'double-float)))
     (let ((input (nsubstitute #\e #\d (with-standard-io-syntax
                                         (string-downcase
